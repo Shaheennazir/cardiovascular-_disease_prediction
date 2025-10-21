@@ -1,0 +1,122 @@
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: #282c34;
+  padding: 20px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+main {
+  padding: 20px;
+}
+
+.model-container {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.auth-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.form-group label {
+  margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #61dafb;
+  color: #282c34;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 5px;
+}
+
+button:hover {
+  background-color: #4fa8c4;
+}
+
+button[type="button"] {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.prediction-result {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #61dafb;
+  border-radius: 5px;
+  background-color: #f0f8ff;
+  text-align: left;
+}
+
+.error-message {
+  color: red;
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid red;
+  border-radius: 5px;
+  background-color: #ffe6e6;
+}
+
+.explanation {
+  margin-top: 15px;
+  padding: 10px;
+  border-left: 3px solid #61dafb;
+}
+
+.explanation h4 {
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.explanation ul {
+  text-align: left;
+  padding-left: 20px;
+}
+
+.visualization {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #e6f7ff;
+  border-radius: 5px;
+}
+
