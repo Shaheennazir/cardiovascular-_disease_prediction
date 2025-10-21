@@ -29,28 +29,61 @@ backend/
 ├── uploads/              # Uploaded files and generated visualizations
 ├── main.py               # Application entry point
 ├── requirements.txt      # Python dependencies
+├── setup.sh              # Portable setup script for Unix-like systems
+├── setup.bat             # Setup script for Windows
 └── Dockerfile            # Docker configuration
 ```
 
 ## Setup Instructions
 
 ### Prerequisites
-- Docker and Docker Compose
+- Docker and Docker Compose (recommended)
 - Python 3.9+ (for local development)
 
-### Installation
+### Installation Options
 
-1. **Using Docker Compose (Recommended)**:
-   ```bash
-   docker-compose up --build
-   ```
+#### 1. Using Docker Compose (Recommended):
+```bash
+docker-compose up --build
+```
 
-2. **Local Development**:
-   ```bash
-   cd backend
-   pip install -r requirements.txt
-   uvicorn main:app --reload
-   ```
+#### 2. Local Development with Setup Scripts:
+
+##### For Unix-like systems (Linux/macOS):
+```bash
+cd backend
+./setup.sh
+source venv/bin/activate
+uvicorn main:app --reload
+```
+
+##### For Windows:
+```cmd
+cd backend
+setup.bat
+call venv\Scripts\activate
+uvicorn main:app --reload
+```
+
+#### 3. Manual Installation:
+```bash
+cd backend
+python3 -m venv venv  # On Windows: python -m venv venv
+source venv/bin/activate  # On Windows: call venv\Scripts\activate
+pip install --upgrade pip
+pip install --use-deprecated=legacy-resolver -r requirements.txt
+pip install pydantic-settings
+pip install pydantic[email]
+pip install numpy==1.24.3
+pip install scipy==1.10.1
+pip install contourpy==1.1.1
+cp .env.example .env  # On Windows: copy .env.example .env
+```
+
+Update the `.env` file with your configuration, then start the server:
+```bash
+uvicorn main:app --reload
+```
 
 ### Environment Variables
 Create a `.env` file in the backend directory:
