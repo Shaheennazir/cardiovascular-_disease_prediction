@@ -5,6 +5,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: cardio-backend:latest
+    container_name: cardio-backend
     ports:
       - "8000:8000"
     environment:
@@ -22,6 +24,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    image: cardio-frontend:latest
+    container_name: cardio-frontend
     ports:
       - "3000:3000"
     environment:

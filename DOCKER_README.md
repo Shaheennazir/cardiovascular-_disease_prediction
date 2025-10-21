@@ -59,6 +59,8 @@ The `docker-compose.yml` file defines three services:
 
 ### Backend Service
 - Built from `backend/Dockerfile`
+- Image name: `cardio-backend:latest`
+- Container name: `cardio-backend`
 - Runs on port 8000
 - Uses SQLite database stored in a Docker volume
 - Mounts `models/` and `datasets/` directories as volumes
@@ -66,6 +68,8 @@ The `docker-compose.yml` file defines three services:
 
 ### Frontend Service
 - Built from `frontend/Dockerfile`
+- Image name: `cardio-frontend:latest`
+- Container name: `cardio-frontend`
 - Runs on port 3000
 - Connects to backend at `http://backend:8000`
 - Mounts the frontend directory for development
@@ -145,7 +149,9 @@ docker-compose down -v
 
 2. **Permission denied errors**: Ensure Docker has the necessary permissions to access the project directories.
 
-3. **Connection refused errors**: Check that all services are running:
+3. **Invalid reference format error**: This occurs when the project directory name contains special characters like underscores. The docker-compose.yml file now explicitly specifies image names to avoid this issue.
+
+4. **Connection refused errors**: Check that all services are running:
    ```bash
    docker-compose ps
    ```
