@@ -1,4 +1,3 @@
-
 'use strict';
 
 const fs = require('fs');
@@ -438,14 +437,6 @@ module.exports = function (webpackEnv) {
                 compact: false,
                 presets: [
                   [
-                    require.resolve('babel-preset-react-app/dependencies'),
-                    { helpers: true },
-                  ],
-                ],
-                cacheDirectory: true,
-                // See #6846 for context on why cacheCompression is disabled
-                cacheCompression: false,
-                
                     require.resolve('babel-preset-react-app/dependencies'),
                     { helpers: true },
                   ],
