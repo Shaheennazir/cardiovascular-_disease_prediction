@@ -4,25 +4,40 @@ services:
   backend:
     build:
       context: ./backend
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./cardio_db.sqlite3
+      - BACKEND_CORS_ORIGINS=["http://localhost:3000"]
     volumes:
       - ./models:/app/models
       - ./datasets:/app/datasets
       - backend_uploads:/app/uploads
-      - backend_db:/app
+      - backend_db:/app/db
+    networks:
+      - app-network
 
   frontend:
     build:
       context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    environment:
+      - REACT_APP_API_BASE_URL=http://backend:8000/api/v1
     depends_on:
       - backend
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    networks:
+      - app-network
 
 volumes:
   backend_uploads:
   backend_db:
+
+networks:
+  app-network:
+    driver: bridge
