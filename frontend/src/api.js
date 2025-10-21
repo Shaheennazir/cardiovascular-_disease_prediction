@@ -1,8 +1,4 @@
-// Force the use of localhost for API calls
-// This ensures compatibility when running frontend locally while backend runs in Docker
-const API_BASE_URL = 'http://localhost:8000/api/v1';
-
-console.log('API Base URL (forced):', API_BASE_URL);
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api/v1';
 
 class ApiService {
   constructor() {
@@ -22,7 +18,6 @@ class ApiService {
 
   async request(endpoint, options = {}) {
     const url = `${this.baseUrl}${endpoint}`;
-    console.log(`Making API request to: ${url}`, { endpoint, options });
     
     const config = {
       headers: {
