@@ -143,5 +143,6 @@
     "presets": [
       "react-app"
     ]
-  }
+  },
+  "proxy": "http://backend:8000"
 }
