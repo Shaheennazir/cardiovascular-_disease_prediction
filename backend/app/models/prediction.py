@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Text
-from sqlalchemy.dialects.postgresql import JSON, UUID
+from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.sql import func
 import uuid
 from app.db.base import Base
@@ -7,7 +7,7 @@ from app.db.base import Base
 class Prediction(Base):
     __tablename__ = "predictions"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     type = Column(String(20), nullable=False)  # 'tabular' or 'ecg'
     input_data = Column(JSON, nullable=False)

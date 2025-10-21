@@ -1,11 +1,10 @@
-from sqlalchemy import Column, Integer, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, Integer, ForeignKey, String
 from app.db.base import Base
 
 class TabularData(Base):
     __tablename__ = "tabular_data"
     
-    prediction_id = Column(UUID(as_uuid=True), ForeignKey("predictions.id"), primary_key=True)
+    prediction_id = Column(String, ForeignKey("predictions.id"), primary_key=True)
     age = Column(Integer, nullable=False)
     gender = Column(Integer, nullable=False)
     height = Column(Integer, nullable=False)

@@ -6,21 +6,20 @@ import { Label } from '../../components/ui/label';
 import { Select } from '../../components/ui/select';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Skeleton } from '../../components/ui/Skeleton';
+import apiService from '../../api';
 
 const TabularModelEnhanced = () => {
   const [formData, setFormData] = useState({
     age: '',
     sex: '',
-    cp: '',
+    height: '',
+    weight: '',
     trestbps: '',
     chol: '',
+    cp: '',
     fbs: '',
-    restecg: '',
-    thalach: '',
     exang: '',
-    oldpeak: '',
     slope: '',
-    ca: '',
     thal: ''
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -42,17 +41,32 @@ const TabularModelEnhanced = () => {
     setResult(null);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Convert form data to match backend schema
+      const requestData = {
+        age: parseInt(formData.age),
+        gender: parseInt(formData.sex) + 1, // Backend expects 1: Male, 2: Female
+        height: parseInt(formData.height) || 0,
+        weight: parseInt(formData.weight) || 0,
+        ap_hi: parseInt(formData.trestbps) || 0,
+        ap_lo: parseInt(formData.chol) || 0,
+        cholesterol: parseInt(formData.cp) + 1, // Backend expects 1: Normal, 2: Above Normal, 3: Well Above Normal
+        gluc: parseInt(formData.fbs) + 1, // Backend expects 1: Normal, 2: Above Normal, 3: Well Above Normal
+        smoke: parseInt(formData.exang),
+        alco: parseInt(formData.slope),
+        active: parseInt(formData.thal)
+      };
       
-      // Mock result
+      const response = await apiService.predictTabular(requestData);
+      
+      // Transform response to match existing UI structure
       setResult({
-        risk: Math.random() > 0.5 ? 'High' : 'Low',
-        probability: Math.random(),
-        confidence: Math.random()
+        risk: response.risk_level,
+        probability: response.probability,
+        confidence: response.confidence
       });
     } catch (err) {
       setError('Failed to get prediction. Please try again.');
+      console.error('Prediction error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -186,10 +200,10 @@ const TabularModelEnhanced = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="sex">Sex</Label>
-                  <Select name="sex" value={formData.sex} onChange={handleChange} required>
+                  <Label htmlFor="sex">Gender</Label>
+                  <Select name="sex" value={formData.sex} onValueChange={(value) => setFormData({...formData, sex: value})} required>
                     <Select.Trigger>
-                      <Select.Value placeholder="Select sex" />
+                      <Select.Value placeholder="Select gender" />
                     </Select.Trigger>
                     <Select.Content>
                       <Select.Item value="0">Female</Select.Item>
@@ -199,22 +213,33 @@ const TabularModelEnhanced = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="cp">Chest Pain Type</Label>
-                  <Select name="cp" value={formData.cp} onChange={handleChange} required>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Select type" />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value="0">Typical Angina</Select.Item>
-                      <Select.Item value="1">Atypical Angina</Select.Item>
-                      <Select.Item value="2">Non-anginal Pain</Select.Item>
-                      <Select.Item value="3">Asymptomatic</Select.Item>
-                    </Select.Content>
-                  </Select>
+                  <Label htmlFor="height">Height (cm)</Label>
+                  <Input
+                    id="height"
+                    name="height"
+                    type="number"
+                    value={formData.height}
+                    onChange={handleChange}
+                    required
+                    placeholder="Enter height"
+                  />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="trestbps">Resting Blood Pressure (mm Hg)</Label>
+                  <Label htmlFor="weight">Weight (kg)</Label>
+                  <Input
+                    id="weight"
+                    name="weight"
+                    type="number"
+                    value={formData.weight}
+                    onChange={handleChange}
+                    required
+                    placeholder="Enter weight"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="trestbps">Systolic Blood Pressure (ap_hi)</Label>
                   <Input
                     id="trestbps"
                     name="trestbps"
@@ -222,12 +247,12 @@ const TabularModelEnhanced = () => {
                     value={formData.trestbps}
                     onChange={handleChange}
                     required
-                    placeholder="Enter blood pressure"
+                    placeholder="Enter systolic BP"
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="chol">Serum Cholesterol (mg/dl)</Label>
+                  <Label htmlFor="chol">Diastolic Blood Pressure (ap_lo)</Label>
                   <Input
                     id="chol"
                     name="chol"
@@ -235,15 +260,43 @@ const TabularModelEnhanced = () => {
                     value={formData.chol}
                     onChange={handleChange}
                     required
-                    placeholder="Enter cholesterol"
+                    placeholder="Enter diastolic BP"
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="fbs">Fasting Blood Sugar {'>'} 120 mg/dl</Label>
-                  <Select name="fbs" value={formData.fbs} onChange={handleChange} required>
+                  <Label htmlFor="cp">Cholesterol Level</Label>
+                  <Select name="cp" value={formData.cp} onValueChange={(value) => setFormData({...formData, cp: value})} required>
                     <Select.Trigger>
-                      <Select.Value placeholder="Select option" />
+                      <Select.Value placeholder="Select cholesterol level" />
+                    </Select.Trigger>
+                    <Select.Content>
+                      <Select.Item value="0">Normal</Select.Item>
+                      <Select.Item value="1">Above Normal</Select.Item>
+                      <Select.Item value="2">Well Above Normal</Select.Item>
+                    </Select.Content>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="fbs">Glucose Level</Label>
+                  <Select name="fbs" value={formData.fbs} onValueChange={(value) => setFormData({...formData, fbs: value})} required>
+                    <Select.Trigger>
+                      <Select.Value placeholder="Select glucose level" />
+                    </Select.Trigger>
+                    <Select.Content>
+                      <Select.Item value="0">Normal</Select.Item>
+                      <Select.Item value="1">Above Normal</Select.Item>
+                      <Select.Item value="2">Well Above Normal</Select.Item>
+                    </Select.Content>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="exang">Smoking</Label>
+                  <Select name="exang" value={formData.exang} onValueChange={(value) => setFormData({...formData, exang: value})} required>
+                    <Select.Trigger>
+                      <Select.Value placeholder="Select smoking status" />
                     </Select.Trigger>
                     <Select.Content>
                       <Select.Item value="0">No</Select.Item>
@@ -253,37 +306,10 @@ const TabularModelEnhanced = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="restecg">Resting Electrocardiographic Results</Label>
-                  <Select name="restecg" value={formData.restecg} onChange={handleChange} required>
+                  <Label htmlFor="slope">Alcohol Consumption</Label>
+                  <Select name="slope" value={formData.slope} onValueChange={(value) => setFormData({...formData, slope: value})} required>
                     <Select.Trigger>
-                      <Select.Value placeholder="Select results" />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value="0">Normal</Select.Item>
-                      <Select.Item value="1">ST-T Abnormality</Select.Item>
-                      <Select.Item value="2">Left Ventricular Hypertrophy</Select.Item>
-                    </Select.Content>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="thalach">Maximum Heart Rate Achieved</Label>
-                  <Input
-                    id="thalach"
-                    name="thalach"
-                    type="number"
-                    value={formData.thalach}
-                    onChange={handleChange}
-                    required
-                    placeholder="Enter heart rate"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="exang">Exercise Induced Angina</Label>
-                  <Select name="exang" value={formData.exang} onChange={handleChange} required>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Select option" />
+                      <Select.Value placeholder="Select alcohol consumption" />
                     </Select.Trigger>
                     <Select.Content>
                       <Select.Item value="0">No</Select.Item>
@@ -293,58 +319,14 @@ const TabularModelEnhanced = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="oldpeak">ST Depression Induced by Exercise</Label>
-                  <Input
-                    id="oldpeak"
-                    name="oldpeak"
-                    type="number"
-                    step="0.1"
-                    value={formData.oldpeak}
-                    onChange={handleChange}
-                    required
-                    placeholder="Enter value"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="slope">Slope of Peak Exercise ST Segment</Label>
-                  <Select name="slope" value={formData.slope} onChange={handleChange} required>
+                  <Label htmlFor="thal">Physical Activity</Label>
+                  <Select name="thal" value={formData.thal} onValueChange={(value) => setFormData({...formData, thal: value})} required>
                     <Select.Trigger>
-                      <Select.Value placeholder="Select slope" />
+                      <Select.Value placeholder="Select activity level" />
                     </Select.Trigger>
                     <Select.Content>
-                      <Select.Item value="0">Upsloping</Select.Item>
-                      <Select.Item value="1">Flat</Select.Item>
-                      <Select.Item value="2">Downsloping</Select.Item>
-                    </Select.Content>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="ca">Number of Major Vessels Colored</Label>
-                  <Select name="ca" value={formData.ca} onChange={handleChange} required>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Select number" />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value="0">0</Select.Item>
-                      <Select.Item value="1">1</Select.Item>
-                      <Select.Item value="2">2</Select.Item>
-                      <Select.Item value="3">3</Select.Item>
-                    </Select.Content>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="thal">Thalassemia</Label>
-                  <Select name="thal" value={formData.thal} onChange={handleChange} required>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Select type" />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value="0">Normal</Select.Item>
-                      <Select.Item value="1">Fixed Defect</Select.Item>
-                      <Select.Item value="2">Reversible Defect</Select.Item>
+                      <Select.Item value="0">No</Select.Item>
+                      <Select.Item value="1">Yes</Select.Item>
                     </Select.Content>
                   </Select>
                 </div>

@@ -3,6 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../../comp
 import { Button } from '../../components/ui/button';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Skeleton } from '../../components/ui/Skeleton';
+import apiService from '../../api';
 
 const EcgModelEnhanced = () => {
   const [file, setFile] = useState(null);
@@ -40,9 +41,9 @@ const EcgModelEnhanced = () => {
 
   const validateAndSetFile = (file) => {
     // Check file type
-    const validTypes = ['text/csv', 'application/json'];
-    if (!validTypes.includes(file.type)) {
-      setError('Invalid file type. Please upload a CSV or JSON file.');
+    // For ECG data, we're accepting .dat files which are binary
+    if (!file.name.endsWith('.dat')) {
+      setError('Invalid file type. Please upload a .dat file.');
       return;
     }
     
@@ -72,21 +73,22 @@ const EcgModelEnhanced = () => {
     setResult(null);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await apiService.predictEcg(file);
       
-      // Mock result
+      // Transform response to match existing UI structure
       setResult({
-        risk: Math.random() > 0.5 ? 'High' : 'Low',
-        probability: Math.random(),
-        confidence: Math.random(),
-        abnormalities: [
-          { type: 'Arrhythmia', severity: 'Moderate' },
-          { type: 'Bradycardia', severity: 'Mild' }
-        ]
+        risk: response.result,
+        probability: Math.max(...Object.values(response.probabilities)),
+        confidence: response.confidence,
+        abnormalities: Object.entries(response.probabilities).map(([type, probability]) => ({
+          type: type.charAt(0).toUpperCase() + type.slice(1),
+          severity: probability > 0.7 ? 'Severe' : probability > 0.4 ? 'Moderate' : 'Mild',
+          probability: probability
+        }))
       });
     } catch (err) {
       setError('Failed to analyze ECG data. Please try again.');
+      console.error('ECG prediction error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -104,7 +106,7 @@ const EcgModelEnhanced = () => {
         <CardHeader>
           <CardTitle className="text-2xl">ECG Analysis</CardTitle>
           <p className="text-muted-foreground">
-            Upload ECG data for advanced cardiovascular disease prediction
+            Upload ECG .dat file for advanced cardiovascular disease prediction
           </p>
         </CardHeader>
         
@@ -210,7 +212,7 @@ const EcgModelEnhanced = () => {
                   ref={fileInputRef}
                   onChange={handleFileChange}
                   className="hidden"
-                  accept=".csv,.json"
+                  accept=".dat"
                 />
                 
                 <div className="flex flex-col items-center justify-center space-y-4">
@@ -225,7 +227,7 @@ const EcgModelEnhanced = () => {
                       {file ? file.name : 'Drag & drop your ECG file here'}
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      {file ? `${(file.size / 1024).toFixed(1)} KB` : 'Supports CSV and JSON formats (Max 10MB)'}
+                      {file ? `${(file.size / 1024).toFixed(1)} KB` : 'Supports .dat format (Max 10MB)'}
                     </p>
                   </div>
                   

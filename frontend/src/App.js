@@ -7,6 +7,7 @@ import DashboardLayout from './components/dashboard/DashboardLayout';
 import DashboardHome from './components/dashboard/DashboardHome';
 import TabularModelEnhanced from './components/predictions/TabularModelEnhanced';
 import EcgModelEnhanced from './components/predictions/EcgModelEnhanced';
+import PredictionHistory from './components/dashboard/PredictionHistory';
 import apiService from './api';
 
 function App() {
@@ -17,7 +18,7 @@ function App() {
   const [email, setEmail] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
   const [error, setError] = useState('');
-  const [activeView, setActiveView] = useState('dashboard'); // dashboard, tabular, ecg
+  const [activeView, setActiveView] = useState('dashboard'); // dashboard, tabular, ecg, history
 
   useEffect(() => {
     // Check if user is already logged in
@@ -83,6 +84,8 @@ function App() {
         return <TabularModelEnhanced />;
       case 'ecg':
         return <EcgModelEnhanced />;
+      case 'history':
+        return <PredictionHistory />;
       default:
         return <DashboardHome />;
     }
@@ -92,8 +95,8 @@ function App() {
     return (
       <ToastProvider>
         <div className="min-h-screen bg-background">
-          <Header 
-            isLoggedIn={false} 
+          <Header
+            isLoggedIn={false}
             onLogin={handleShowLogin}
             onRegister={handleShowRegister}
           />
@@ -107,8 +110,8 @@ function App() {
     return (
       <ToastProvider>
         <div className="min-h-screen bg-background">
-          <Header 
-            isLoggedIn={false} 
+          <Header
+            isLoggedIn={false}
             onLogin={handleShowLogin}
             onRegister={handleShowRegister}
           />
@@ -161,8 +164,8 @@ function App() {
                       />
                     </div>
                     
-                    <button 
-                      type="submit" 
+                    <button
+                      type="submit"
                       className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
                     >
                       Register
@@ -170,8 +173,8 @@ function App() {
                     
                     <p className="text-center text-sm">
                       Already have an account?{' '}
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => setIsRegistering(false)}
                         className="text-primary underline-offset-4 hover:underline"
                       >
@@ -205,8 +208,8 @@ function App() {
                       />
                     </div>
                     
-                    <button 
-                      type="submit" 
+                    <button
+                      type="submit"
                       className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
                     >
                       Login
@@ -214,8 +217,8 @@ function App() {
                     
                     <p className="text-center text-sm">
                       Don't have an account?{' '}
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => setIsRegistering(true)}
                         className="text-primary underline-offset-4 hover:underline"
                       >
@@ -226,7 +229,7 @@ function App() {
                 )}
                 
                 <div className="mt-6 text-center">
-                  <button 
+                  <button
                     onClick={() => setShowLogin(false)}
                     className="text-sm text-primary hover:underline"
                   >
@@ -274,6 +277,16 @@ function App() {
             }`}
           >
             ECG Analysis
+          </button>
+          <button
+            onClick={() => setActiveView('history')}
+            className={`px-4 py-2 rounded-md text-sm font-medium ${
+              activeView === 'history'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted hover:bg-muted/80'
+            }`}
+          >
+            Prediction History
           </button>
         </div>
         

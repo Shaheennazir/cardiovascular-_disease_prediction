@@ -24,7 +24,8 @@ class Settings(BaseSettings):
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         if self.DATABASE_URL:
             return self.DATABASE_URL
-        return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}/{self.POSTGRES_DB}"
+        # Use SQLite for development
+        return "sqlite:///./cardio_db.sqlite3"
 
     class Config:
         case_sensitive = True

@@ -6,28 +6,11 @@ services:
       context: ./backend
     ports:
       - "8000:8000"
-    environment:
-      - POSTGRES_SERVER=db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=cardio_db
-    depends_on:
-      - db
     volumes:
       - ./models:/app/models
       - ./datasets:/app/datasets
       - backend_uploads:/app/uploads
-
-  db:
-    image: postgres:13
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=cardio_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - backend_db:/app
 
   frontend:
     build:
@@ -41,5 +24,5 @@ services:
       - /app/node_modules
 
 volumes:
-  postgres_data:
   backend_uploads:
+  backend_db:

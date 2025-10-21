@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.db.base import get_db
-from app.models.user import User
+from app.models.user import User as UserModel
 from app.schemas.user import UserCreate, User, Token
 from app.core.security import get_password_hash, verify_password, create_access_token
 from datetime import timedelta
@@ -11,10 +11,10 @@ from app.core.config import settings
 router = APIRouter()
 
 def get_user_by_username(db: Session, username: str):
-    return db.query(User).filter(User.username == username).first()
+    return db.query(UserModel).filter(UserModel.username == username).first()
 
 def get_user_by_email(db: Session, email: str):
-    return db.query(User).filter(User.email == email).first()
+    return db.query(UserModel).filter(UserModel.email == email).first()
 
 def authenticate_user(db: Session, username: str, password: str):
     user = get_user_by_username(db, username)
@@ -44,7 +44,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     
     # Create new user
     hashed_password = get_password_hash(user.password)
-    db_user = User(
+    db_user = UserModel(
         username=user.username,
         email=user.email,
         hashed_password=hashed_password

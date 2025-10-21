@@ -9,17 +9,12 @@ RUN apt-get update && apt-get install -y \
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir --use-deprecated=legacy-resolver -r requirements.txt
-RUN pip install pydantic-settings
-RUN pip install 'pydantic[email]'
-RUN pip install numpy==1.24.3
-RUN pip install scipy==1.10.1
-RUN pip install contourpy==1.1.1
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
 
-# Create directories for uploads
+# Create directories for uploads and database
 RUN mkdir -p uploads/ecg_files uploads/visualizations
 
 # Expose port
