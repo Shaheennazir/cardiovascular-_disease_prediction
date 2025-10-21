@@ -146,6 +146,10 @@ The system follows a microservices architecture with separate frontend and backe
 ├── docker-compose.yml         # Docker Compose configuration
 ├── .gitignore                 # Git ignore rules
 └── README.md                  # This file
+
+Environment example files:
+├── backend/.env.example       # Backend environment variables example
+└── frontend/.env.example      # Frontend environment variables example
 ```
 
 ## Data Flow
@@ -185,6 +189,17 @@ The system follows a microservices architecture with separate frontend and backe
 - [Git](https://git-scm.com/)
 - At least 8GB RAM (for ML model loading)
 
+### Environment Files
+
+Copy the example environment files and customize them for your setup:
+
+```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+```
+
+Edit these files with your specific configuration values.
+
 ### Quick Start
 
 1. Clone the repository:
@@ -217,7 +232,7 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-Environment variables for backend development:
+Environment variables for backend development (see [backend/.env.example](backend/.env.example)):
 ```env
 SECRET_KEY=your-secret-key-here
 POSTGRES_SERVER=localhost
@@ -235,7 +250,7 @@ npm install
 npm start
 ```
 
-Environment variables for frontend development:
+Environment variables for frontend development (see [frontend/.env.example](frontend/.env.example)):
 ```env
 REACT_APP_API_BASE_URL=http://localhost:8000/api/v1
 ```
