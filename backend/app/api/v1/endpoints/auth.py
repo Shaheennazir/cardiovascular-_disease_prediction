@@ -42,8 +42,15 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
             detail="Email already registered"
         )
     
+    # Validate password length
+    if len(user.password) > 128:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password is too long (maximum 128 characters)"
+        )
+    
     # Create new user
-    hashed_password = get_password_hash(user.password[:72])
+    hashed_password = get_password_hash(user.password)
     db_user = UserModel(
         username=user.username,
         email=user.email,
