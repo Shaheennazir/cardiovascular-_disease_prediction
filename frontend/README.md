@@ -1,105 +1,93 @@
 # Cardiovascular Disease Prediction Frontend
 
-## Overview
-This is the frontend application for the Cardiovascular Disease Prediction system. It provides a user interface for:
-- User authentication (registration and login)
-- Submitting patient data for cardiovascular risk prediction
-- Uploading ECG files for arrhythmia detection
-- Viewing prediction results with explanations and confidence scores
-- Accessing prediction history
-
-## Tech Stack
-- **Framework**: React.js
-- **Styling**: CSS3
-- **API Communication**: Fetch API
-- **Visualization**: Integration with backend visualization service
-
-## Project Structure
-```
-frontend/
-├── public/               # Static assets
-├── src/                  # Source code
-│   ├── components/       # React components
-│   ├── services/         # API service layer
-│   ├── App.js            # Main application component
-│   ├── App.css           # Application styles
-│   └── index.js          # Entry point
-├── Dockerfile            # Docker configuration
-└── package.json          # Dependencies and scripts
-```
-
-## Setup Instructions
-
-### Prerequisites
-- Node.js 14+
-- Docker and Docker Compose (for containerized deployment)
-
-### Installation
-
-1. **Using Docker Compose (Recommended)**:
-   ```bash
-   docker-compose up --build
-   ```
-
-2. **Local Development**:
-   ```bash
-   cd frontend
-   npm install
-   npm start
-   ```
-
-### Environment Variables
-Create a `.env` file in the frontend directory:
-```env
-REACT_APP_API_BASE_URL=http://localhost:8000/api/v1
-```
+This is the frontend application for the Cardiovascular Disease Prediction system, built with React, Tailwind CSS, and shadcn/ui components.
 
 ## Features
 
-### Authentication
-- User registration with username, email, and password
-- Secure login with JWT token handling
-- Persistent sessions using localStorage
+- Modern, responsive UI with Tailwind CSS
+- Component library using shadcn/ui design principles
+- Landing page for unauthenticated users
+- Dashboard layout for authenticated users
+- Tabular data prediction interface
+- ECG analysis interface with file upload
+- User authentication (login/registration)
+- Loading states and skeleton screens
+- Toast notifications for user feedback
 
-### Tabular Data Prediction
-- Comprehensive form for patient data input
-- Real-time prediction with confidence scores
-- Detailed explanations of risk factors
-- Personalized recommendations
+## Tech Stack
 
-### ECG Analysis
-- File upload for ECG data (.dat files)
-- Arrhythmia detection with classification
-- Abnormality localization and explanation
-- ECG signal visualization (via backend service)
+- React.js
+- Tailwind CSS
+- shadcn/ui component library
+- Axios for API requests
 
-### Responsive Design
-- Mobile-friendly interface
-- Adaptive grid layouts
-- Accessible form controls
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── layout/          # Layout components (Header, LandingPage)
+│   ├── dashboard/       # Dashboard components
+│   ├── predictions/     # Prediction model interfaces
+│   └── ui/              # Reusable UI components
+├── api.js              # API service
+└── App.js              # Main application component
+```
+
+For detailed documentation on components, see [src/components/README.md](src/components/README.md).
+
+## Getting Started
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Start the development server:
+   ```bash
+   npm start
+   ```
+
+3. Build for production:
+   ```bash
+   npm run build
+   ```
 
 ## Development
 
-### Component Structure
-- `App.js`: Main application with authentication flow
-- `TabularModel.js`: Patient data prediction interface
-- `EcgModel.js`: ECG file upload and analysis interface
-- `api.js`: Service layer for backend communication
+This project uses:
+- Tailwind CSS for styling
+- Custom design system with medical-themed color palette
+- Component-based architecture
+- Responsive design principles
 
-### Styling
-- CSS modules for component-scoped styling
-- Responsive grid layouts
-- Consistent color scheme and typography
+## Available Scripts
+
+In the project directory, you can run:
+
+### `npm start`
+
+Runs the app in the development mode.
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
+### `npm test`
+
+Launches the test runner in the interactive watch mode.
+
+### `npm run build`
+
+Builds the app for production to the `build` folder.
+
+### `npm run eject`
+
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
 
 ## Deployment
-The application can be deployed using Docker Compose along with the backend services.
 
-## Contributing
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a pull request
-
-## License
-MIT License
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
