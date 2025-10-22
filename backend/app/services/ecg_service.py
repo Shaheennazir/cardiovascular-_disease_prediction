@@ -6,7 +6,6 @@ from typing import Dict, Any, List
 import uuid
 from app.core import get_logger
 from app.core.logging import performance_monitor
-from app.core.file_utils import get_absolute_file_path
 
 logger = get_logger(__name__)
 
@@ -47,12 +46,10 @@ class ECGPredictionService:
                 raise FileNotFoundError(f"ECG header file not found: {header_path}. Please upload both .dat and .hea files.")
             
             # Read the ECG record using wfdb
-            # For wfdb.rdrecord, we need to provide the directory and record name separately
-            # Get the directory and filename without extension
-            directory = os.path.dirname(file_path)
-            record_name = os.path.basename(get_absolute_file_path(file_path))
-            logger.debug("Directory and record name for wfdb", directory=directory, record_name=record_name)
-            record = wfdb.rdrecord(record_name, pn_dir=directory)
+            # For local files, we pass the full file path without extension
+            file_path_no_ext = os.path.splitext(file_path)[0]
+            logger.debug("File path for wfdb", file_path_no_ext=file_path_no_ext)
+            record = wfdb.rdrecord(file_path_no_ext)
             
             # Extract signal data
             signal = record.p_signal
