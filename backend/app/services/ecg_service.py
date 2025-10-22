@@ -39,6 +39,12 @@ class ECGPredictionService:
         """Preprocess ECG file for prediction"""
         logger.info("Preprocessing ECG file", file_path=file_path)
         try:
+            # Check if header file exists
+            header_path = file_path.replace('.dat', '.hea')
+            if not os.path.exists(header_path):
+                logger.error("Missing ECG header file", header_path=header_path)
+                raise FileNotFoundError(f"ECG header file not found: {header_path}. Please upload both .dat and .hea files.")
+            
             # Read the ECG record using wfdb
             record = wfdb.rdrecord(file_path.replace('.dat', ''))
             

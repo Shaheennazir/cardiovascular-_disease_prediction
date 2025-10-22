@@ -129,10 +129,17 @@ async def predict_ecg(
                      file_size=len(content))
         
         # Make prediction
-        prediction_result = ecg_service.predict(file_path)
-        logger.info("ECG prediction completed",
-                     user_id=current_user.id,
-                     prediction_result=prediction_result)
+        try:
+            prediction_result = ecg_service.predict(file_path)
+            logger.info("ECG prediction completed",
+                         user_id=current_user.id,
+                         prediction_result=prediction_result)
+        except FileNotFoundError as e:
+            logger.error("Missing ECG header file", error=str(e))
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e)
+            )
         
         # Detect abnormalities
         abnormalities = ecg_service.detect_abnormalities(file_path)
@@ -144,11 +151,16 @@ async def predict_ecg(
                      user_id=current_user.id)
         
         # Generate visualization
-        viz_path = visualization_service.generate_visualization(file_path, abnormalities)
-        logger.info("Visualization generated",
-                     user_id=current_user.id,
-                     viz_path=viz_path)
-        visualization_url = f"/api/v1/ecg/{prediction_id}/visualization"
+        try:
+            viz_path = visualization_service.generate_visualization(file_path, abnormalities)
+            logger.info("Visualization generated",
+                         user_id=current_user.id,
+                         viz_path=viz_path)
+        except FileNotFoundError as e:
+            logger.error("Missing ECG header file for visualization", error=str(e))
+            # Continue without visualization if header file is missing
+            viz_path = None
+        visualization_url = f"/api/v1/ecg/{prediction_id}/visualization" if viz_path else None
         
         # Save prediction to database
         prediction_id = str(uuid.uuid4())

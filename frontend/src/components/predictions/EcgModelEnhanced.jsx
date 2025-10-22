@@ -43,7 +43,7 @@ const EcgModelEnhanced = () => {
     // Check file type
     // For ECG data, we're accepting .dat files which are binary
     if (!file.name.endsWith('.dat')) {
-      setError('Invalid file type. Please upload a .dat file.');
+      setError('Invalid file type. Please upload a .dat file. Note: You must also provide the corresponding .hea header file.');
       return;
     }
     
@@ -87,7 +87,11 @@ const EcgModelEnhanced = () => {
         }))
       });
     } catch (err) {
-      setError('Failed to analyze ECG data. Please try again.');
+      if (err.message.includes('header file not found') || err.message.includes('.hea')) {
+        setError('Missing ECG header file. Please upload both the .dat and .hea files together.');
+      } else {
+        setError('Failed to analyze ECG data. Please try again.');
+      }
       console.error('ECG prediction error:', err);
     } finally {
       setIsLoading(false);
@@ -106,7 +110,7 @@ const EcgModelEnhanced = () => {
         <CardHeader>
           <CardTitle className="text-2xl">ECG Analysis</CardTitle>
           <p className="text-muted-foreground">
-            Upload ECG .dat file for advanced cardiovascular disease prediction
+            Upload ECG .dat and .hea files for advanced cardiovascular disease prediction
           </p>
         </CardHeader>
         
@@ -227,7 +231,7 @@ const EcgModelEnhanced = () => {
                       {file ? file.name : 'Drag & drop your ECG file here'}
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      {file ? `${(file.size / 1024).toFixed(1)} KB` : 'Supports .dat format (Max 10MB)'}
+                      {file ? `${(file.size / 1024).toFixed(1)} KB` : 'Supports .dat format (Max 10MB). You must also provide the corresponding .hea header file.'}
                     </p>
                   </div>
                   
