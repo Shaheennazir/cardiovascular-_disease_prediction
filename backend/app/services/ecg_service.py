@@ -39,12 +39,6 @@ class ECGPredictionService:
         """Preprocess ECG file for prediction"""
         logger.info("Preprocessing ECG file", file_path=file_path)
         try:
-            # Check if header file exists
-            header_path = file_path.replace('.dat', '.hea')
-            if not os.path.exists(header_path):
-                logger.error("Missing ECG header file", header_path=header_path)
-                raise FileNotFoundError(f"ECG header file not found: {header_path}. Please upload both .dat and .hea files.")
-            
             # Get the absolute base path (without extension)
             logger.info(f"🧩 DEBUG: file_path received -> {file_path}")
             abs_file_path = os.path.abspath(file_path)
@@ -53,35 +47,75 @@ class ECGPredictionService:
             logger.debug("Base path for wfdb", base_path=base_path)
             
             # Safety check to ensure files exist before calling wfdb
-            if not os.path.exists(base_path + ".dat"):
-                raise FileNotFoundError(f"ECG data file not found: {base_path}.dat")
-            if not os.path.exists(base_path + ".hea"):
-                raise FileNotFoundError(f"ECG header file not found: {base_path}.hea")
+            dat_file = base_path + ".dat"
+            hea_file = base_path + ".hea"
             
-            # --- FIX HEADER NAME MISMATCH ---
+            if not os.path.exists(dat_file):
+                raise FileNotFoundError(f"ECG data file not found: {dat_file}")
+            if not os.path.exists(hea_file):
+                raise FileNotFoundError(f"ECG header file not found: {hea_file}")
+            
+            # --- COMPREHENSIVE HEADER FIX ---
             try:
-                header_path = base_path + ".hea"
-                with open(header_path, "r+", encoding="utf-8") as f:
-                    content = f.read()
-                    lines = content.splitlines()
-                    if lines and not lines[0].startswith(os.path.basename(base_path)):
-                        parts = lines[0].split()
-                        old_name = parts[0]
-                        parts[0] = os.path.basename(base_path)
-                        lines[0] = " ".join(parts)
-                        f.seek(0)
-                        f.write("\n".join(lines))
-                        f.truncate()
-                        logger.info(f"🩺 Updated header base name from '{old_name}' → '{parts[0]}'")
-            except Exception as e:
-                logger.warning("Could not rewrite ECG header prefix", error=str(e))
-            # --- END FIX HEADER NAME MISMATCH ---
+                expected_name = os.path.basename(base_path)
                 
-            # ✅ THE FIX: Pass the base_path directly to wfdb.rdrecord
-            # wfdb expects the path WITHOUT extension and will look for .dat and .hea files
-            record = wfdb.rdrecord(base_path)
+                # Read the entire header file
+                with open(hea_file, "r", encoding="utf-8") as f:
+                    header_lines = f.readlines()
+                
+                if not header_lines:
+                    raise ValueError("Header file is empty")
+                
+                logger.info(f"📄 Original header first line: {header_lines[0].strip()}")
+                
+                # Parse the first line
+                first_line_parts = header_lines[0].strip().split()
+                old_record_name = first_line_parts[0]
+                
+                # If the record name doesn't match, update the entire header
+                if old_record_name != expected_name:
+                    logger.info(f"🔧 Fixing header: '{old_record_name}' → '{expected_name}'")
+                    
+                    # Update first line
+                    first_line_parts[0] = expected_name
+                    header_lines[0] = " ".join(first_line_parts) + "\n"
+                    
+                    # Update any other lines that reference the old filename
+                    for i in range(1, len(header_lines)):
+                        if old_record_name in header_lines[i]:
+                            header_lines[i] = header_lines[i].replace(old_record_name, expected_name)
+                            logger.info(f"📝 Updated line {i+1}: {header_lines[i].strip()}")
+                    
+                    # Write the corrected header back
+                    with open(hea_file, "w", encoding="utf-8") as f:
+                        f.writelines(header_lines)
+                    
+                    logger.info(f"✅ Header file updated successfully")
+                    
+                    # Verify the fix
+                    with open(hea_file, "r", encoding="utf-8") as f:
+                        verify_line = f.readline().strip()
+                    logger.info(f"📄 Verified header first line: {verify_line}")
+                else:
+                    logger.info(f"✅ Header already correct: {expected_name}")
+                    
+            except Exception as e:
+                logger.error("Error fixing header file", error=str(e), exc_info=True)
+                raise
+            # --- END COMPREHENSIVE HEADER FIX ---
             
-            logger.info(f"✅ Successfully loaded record: {record.__dict__.keys()}")
+            # Now read with wfdb
+            logger.info(f"🔍 Calling wfdb.rdrecord with base_path: {base_path}")
+            logger.info(f"🔍 Directory contents: {os.listdir(os.path.dirname(base_path))}")
+            
+            # Use wfdb.rdrecord with explicit parameters
+            record = wfdb.rdrecord(
+                record_name=os.path.basename(base_path),
+                pn_dir=os.path.dirname(base_path),
+                sampto=None
+            )
+            
+            logger.info(f"✅ Successfully loaded record with {len(record.sig_name)} signals")
             
             # Extract signal data
             signal = record.p_signal
@@ -91,8 +125,7 @@ class ECGPredictionService:
             signal = (signal - np.mean(signal)) / np.std(signal)
             logger.debug("ECG signal normalized")
             
-            # Reshape for model input (assuming model expects specific shape)
-            # This would need to be adjusted based on the actual model requirements
+            # Reshape for model input
             if len(signal.shape) == 1:
                 signal = signal.reshape(1, -1, 1)
             elif len(signal.shape) == 2 and signal.shape[1] == 1:
@@ -102,6 +135,7 @@ class ECGPredictionService:
                 
             logger.debug("ECG signal reshaped", final_shape=signal.shape)
             return signal
+            
         except Exception as e:
             logger.error("Error preprocessing ECG file", error=str(e), exc_info=True)
             # Return dummy data for testing
