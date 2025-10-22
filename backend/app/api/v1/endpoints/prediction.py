@@ -113,6 +113,9 @@ async def predict_ecg(
     logger.info("ECG prediction request received",
                  user_id=current_user.id,
                  file_count=len(files))
+    logger.debug("Processing ECG files",
+                 user_id=current_user.id,
+                 filenames=[f.filename for f in files])
     try:
         # Validate that we have both .dat and .hea files
         dat_files = [f for f in files if f.filename.endswith('.dat')]
@@ -178,19 +181,31 @@ async def predict_ecg(
                      user_id=current_user.id)
         
         # Generate visualization
+        # Generate prediction ID first to use in visualization URL
+        prediction_id = str(uuid.uuid4())
+        logger.info("Generated prediction ID for ECG analysis",
+                     user_id=current_user.id,
+                     prediction_id=prediction_id)
         try:
             viz_path = visualization_service.generate_visualization(file_path, abnormalities)
             logger.info("Visualization generated",
                          user_id=current_user.id,
+                         prediction_id=prediction_id,
                          viz_path=viz_path)
         except FileNotFoundError as e:
-            logger.error("Missing ECG header file for visualization", error=str(e))
+            logger.error("Missing ECG header file for visualization",
+                         user_id=current_user.id,
+                         prediction_id=prediction_id,
+                         error=str(e))
             # Continue without visualization if header file is missing
             viz_path = None
         visualization_url = f"/api/v1/ecg/{prediction_id}/visualization" if viz_path else ""
+        logger.info("Visualization URL constructed",
+                     user_id=current_user.id,
+                     prediction_id=prediction_id,
+                     visualization_url=visualization_url)
         
         # Save prediction to database
-        prediction_id = str(uuid.uuid4())
         result_data = prediction_result.copy()
         result_data["visualization_url"] = visualization_url
         result_data["abnormalities"] = abnormalities
@@ -245,6 +260,11 @@ async def predict_ecg(
             "created_at": db_prediction.created_at
         }
         
+        logger.info("ECG prediction completed successfully",
+                     user_id=current_user.id,
+                     prediction_id=prediction_id,
+                     classification=prediction_result["classification"],
+                     confidence=prediction_result["confidence"])
         return response_data
         
     except Exception as e:
