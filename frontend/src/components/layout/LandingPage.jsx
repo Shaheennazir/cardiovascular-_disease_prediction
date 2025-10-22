@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, MonitorHeart, Neurology, ShieldCheck, UploadCloud, Cpu, BarChartBig, Twitter, Facebook, Instagram } from 'lucide-react';
+import { Heart, Activity, Brain, ShieldCheck, Upload, Cpu, BarChartBig, Twitter, Facebook, Instagram } from 'lucide-react';
 
 const FeatureCard = ({ icon: Icon, title, description, rotation }) => (
   <div className={`flex flex-1 gap-6 rounded-[3rem] bg-[#2a2a2a] p-8 flex-col transform hover:rotate-0 transition-transform duration-300 glitch-effect-border ${rotation}`}>
@@ -70,8 +70,8 @@ const LandingPage = ({ onGetStarted }) => {
                 </div>
               </div>
               <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8 p-0">
-                <FeatureCard icon={MonitorHeart} title="Real-time Monitoring" description="Monitor your heart rate in real-time with our advanced sensors." rotation="rotate-[-2deg]" />
-                <FeatureCard icon={Neurology} title="AI ECG Analysis" description="Get a detailed analysis of your ECG data with our AI-powered algorithms." rotation="rotate-[3deg]" />
+                <FeatureCard icon={Activity} title="Real-time Monitoring" description="Monitor your heart rate in real-time with our advanced sensors." rotation="rotate-[-2deg]" />
+                <FeatureCard icon={Brain} title="AI ECG Analysis" description="Get a detailed analysis of your ECG data with our AI-powered algorithms." rotation="rotate-[3deg]" />
                 <FeatureCard icon={BarChartBig} title="Personalized Health" description="Receive personalized recommendations based on your unique health profile." rotation="rotate-[-1deg]" />
                 <FeatureCard icon={ShieldCheck} title="Secure Data Storage" description="Your data is safe with us. We use the latest encryption technologies to protect your privacy." rotation="rotate-[2deg]" />
               </div>
@@ -83,7 +83,7 @@ const LandingPage = ({ onGetStarted }) => {
                 How It Works.
               </h1>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <HowItWorksCard icon={UploadCloud} title="Upload Your Data" description="Securely upload your heart rate and ECG data from compatible devices." step="1" rotation="rotate-[1deg]" />
+                <HowItWorksCard icon={Upload} title="Upload Your Data" description="Securely upload your heart rate and ECG data from compatible devices." step="1" rotation="rotate-[1deg]" />
                 <HowItWorksCard icon={Cpu} title="AI Processes Information" description="Our advanced AI algorithms analyze your data for patterns and insights." step="2" rotation="rotate-[-2deg]" />
                 <HowItWorksCard icon={BarChartBig} title="Receive Personalized Insights" description="Get clear, actionable recommendations tailored to your unique health profile." step="3" rotation="rotate-[0.5deg]" />
               </div>

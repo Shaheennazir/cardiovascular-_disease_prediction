@@ -13,12 +13,11 @@ const Header = ({ isLoggedIn, onLogin, onRegister, onLogout, onGetStarted, isTra
 
   return (
     <header className={`${headerClasses} px-4 md:px-10 lg:px-20 xl:px-40`}>
-      <div className="flex items-center justify-between h-20">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex items-center space-x-2">
             <Heart className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-foreground">CardioPredict</span>
+            <span className={`text-xl font-bold ${textColor}`}>CardioPredict</span>
           </div>
 
           {/* Desktop Navigation */}
@@ -86,7 +85,7 @@ const Header = ({ isLoggedIn, onLogin, onRegister, onLogout, onGetStarted, isTra
             </div>
           </div>
         )}
-      </div>
+    </header>
   );
 };
 
