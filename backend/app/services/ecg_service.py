@@ -57,6 +57,25 @@ class ECGPredictionService:
                 raise FileNotFoundError(f"ECG data file not found: {base_path}.dat")
             if not os.path.exists(base_path + ".hea"):
                 raise FileNotFoundError(f"ECG header file not found: {base_path}.hea")
+            
+            # --- FIX HEADER NAME MISMATCH ---
+            try:
+                header_path = base_path + ".hea"
+                with open(header_path, "r+", encoding="utf-8") as f:
+                    content = f.read()
+                    lines = content.splitlines()
+                    if lines and not lines[0].startswith(os.path.basename(base_path)):
+                        parts = lines[0].split()
+                        old_name = parts[0]
+                        parts[0] = os.path.basename(base_path)
+                        lines[0] = " ".join(parts)
+                        f.seek(0)
+                        f.write("\n".join(lines))
+                        f.truncate()
+                        logger.info(f"🩺 Updated header base name from '{old_name}' → '{parts[0]}'")
+            except Exception as e:
+                logger.warning("Could not rewrite ECG header prefix", error=str(e))
+            # --- END FIX HEADER NAME MISMATCH ---
                 
             record = wfdb.rdrecord(base_path)
             
