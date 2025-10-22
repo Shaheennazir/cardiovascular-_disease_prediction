@@ -28,9 +28,9 @@ class ECGVisualizationService:
             
             # Read the ECG record using wfdb
             # For local files, we pass the full file path without extension
-            file_path_no_ext = os.path.splitext(file_path)[0]
-            logger.debug("File path for wfdb", file_path_no_ext=file_path_no_ext)
-            record = wfdb.rdrecord(file_path_no_ext)
+            base_path = os.path.splitext(file_path)[0]
+            logger.debug("Base path for wfdb", base_path=base_path)
+            record = wfdb.rdrecord(base_path)
             
             # Extract signal data (using first lead for simplicity)
             signal = record.p_signal[:, 0] if len(record.p_signal.shape) > 1 else record.p_signal

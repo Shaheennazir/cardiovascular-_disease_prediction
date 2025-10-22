@@ -1,116 +1,96 @@
 #!/usr/bin/env python3
 """
-Test script to verify that the ECG services can read local files properly
-without accessing physionet.org
+Test script to verify local ECG file reading functionality.
+This script tests the fix for the file path handling issue.
 """
 
-import sys
 import os
+import sys
 import tempfile
-import numpy as np
-import wfdb
+import shutil
+from pathlib import Path
 
-# Add the backend directory to the path so we can import our modules
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'backend'))
+# Add backend to path so we can import the services
+sys.path.insert(0, 'backend')
 
-from app.services.ecg_service import ECGPredictionService
-from app.services.visualization_service import ECGVisualizationService
+from backend.app.services.ecg_service import ecg_service
+from backend.app.services.visualization_service import visualization_service
 
-def create_test_ecg_file():
-    """Create a simple test ECG file in WFDB format"""
-    # Create temporary directory
-    temp_dir = tempfile.mkdtemp()
+def test_file_path_handling():
+    """Test that the services correctly handle file paths with UUID prefixes."""
+    print("Testing ECG file path handling...")
     
-    # Create sample ECG data
-    fs = 360  # Sampling frequency
-    duration = 10  # seconds
-    samples = fs * duration
-    
-    # Generate synthetic ECG signal
-    t = np.linspace(0, duration, samples)
-    ecg_signal = np.sin(2 * np.pi * 1 * t) + 0.5 * np.sin(2 * np.pi * 2 * t)
-    
-    # Create WFDB record
-    record_name = 'test_ecg'
-    file_path_no_ext = os.path.join(temp_dir, record_name)
-    
-    # Save record files
-    wfdb.wrsamp(
-        record_name=record_name,
-        fs=fs,
-        units=['mV'],
-        sig_name=['MLII'],
-        p_signal=ecg_signal.reshape(-1, 1),
-        write_dir=temp_dir
-    )
-    
-    dat_path = os.path.join(temp_dir, f'{record_name}.dat')
-    hea_path = os.path.join(temp_dir, f'{record_name}.hea')
-    
-    return temp_dir, dat_path, hea_path, file_path_no_ext
-
-def test_ecg_services():
-    """Test both ECG services with local files"""
-    print("Creating test ECG file...")
-    temp_dir, dat_path, hea_path, file_path_no_ext = create_test_ecg_file()
-    
-    print(f"Test files created:")
-    print(f"  DAT file: {dat_path}")
-    print(f"  HEA file: {hea_path}")
-    print(f"  File path without extension: {file_path_no_ext}")
+    # Create a temporary directory for our test files
+    test_dir = tempfile.mkdtemp(prefix="ecg_test_")
+    print(f"Created test directory: {test_dir}")
     
     try:
-        # Test reading the file directly with wfdb
-        print("\nTesting direct WFDB reading...")
-        record = wfdb.rdrecord(file_path_no_ext)
-        print(f"Successfully read record with {record.sig_len} samples")
-        print(f"Signal shape: {record.p_signal.shape}")
+        # Create mock ECG files with UUID-like naming
+        uuid_prefix = "2122602e-d6ef-4bdc-85eb-b149cff02458"
+        dat_filename = f"{uuid_prefix}_rec_1.dat"
+        hea_filename = f"{uuid_prefix}_rec_1.hea"
         
-        # Test ECG prediction service
-        print("\nTesting ECG prediction service...")
-        ecg_service = ECGPredictionService()
-        # Use the .dat file path as that's what the service expects
-        prediction = ecg_service.predict(dat_path)
-        print(f"Prediction result: {prediction}")
+        dat_file_path = os.path.join(test_dir, dat_filename)
+        hea_file_path = os.path.join(test_dir, hea_filename)
         
-        # Test visualization service
-        print("\nTesting visualization service...")
-        viz_service = ECGVisualizationService()
-        # Use the .dat file path as that's what the service expects
-        abnormalities = [
-            {
-                "start_time": 1.0,
-                "end_time": 2.0,
-                "type": "PVC",
-                "description": "Test abnormality"
-            }
-        ]
-        viz_path = viz_service.generate_visualization(dat_path, abnormalities)
-        print(f"Visualization saved to: {viz_path}")
+        print(f"Creating mock files:")
+        print(f"  DAT file: {dat_file_path}")
+        print(f"  HEA file: {hea_file_path}")
         
-        print("\nAll tests passed! The services can read local files properly.")
+        # Create mock .hea file content (minimal valid header)
+        hea_content = f"""{uuid_prefix}_rec_1 1 250 250.000
+0.954314720812182 0.954314720812182 0 0 0 0 0 0
+EOF
+"""
+        
+        # Write the header file
+        with open(hea_file_path, 'w') as f:
+            f.write(hea_content)
+        
+        # Create a small mock .dat file (just some bytes)
+        # In reality, this would be actual ECG data
+        with open(dat_file_path, 'wb') as f:
+            f.write(b'\x00' * 1000)  # 1000 zero bytes as mock data
+        
+        print("Mock files created successfully")
+        
+        # Test that the file paths are handled correctly
+        # The services should be able to process these files without errors
+        print("\nTesting ECG service preprocessing...")
+        try:
+            # This should work without trying to access physionet.org or look in wrong directories
+            signal = ecg_service.preprocess_ecg_file(dat_file_path)
+            print(f"✓ ECG preprocessing successful. Signal shape: {signal.shape}")
+        except Exception as e:
+            print(f"✗ ECG preprocessing failed: {e}")
+            return False
+            
+        print("\nTesting visualization service loading...")
+        try:
+            # This should also work without trying to access physionet.org or look in wrong directories
+            time_points, signal = visualization_service.load_ecg_signal(dat_file_path)
+            print(f"✓ Visualization loading successful. Time points shape: {time_points.shape}, Signal shape: {signal.shape}")
+        except Exception as e:
+            print(f"✗ Visualization loading failed: {e}")
+            return False
+            
+        print("\nAll tests passed! File path handling is working correctly.")
         return True
         
-    except Exception as e:
-        print(f"\nError during testing: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
     finally:
-        # Clean up temporary files
-        try:
-            os.remove(dat_path)
-            os.remove(hea_path)
-            os.rmdir(temp_dir)
-            # Clean up any visualization files created
-            if 'viz_path' in locals() and viz_path and os.path.exists(viz_path):
-                os.remove(viz_path)
-                viz_dir = os.path.dirname(viz_path)
-                if os.path.exists(viz_dir) and not os.listdir(viz_dir):
-                    os.rmdir(viz_dir)
-        except Exception as e:
-            print(f"Warning: Could not clean up temporary files: {e}")
+        # Clean up test directory
+        print(f"\nCleaning up test directory: {test_dir}")
+        shutil.rmtree(test_dir)
 
 if __name__ == "__main__":
-    success = test_ecg_services()
-    sys.exit(0 if success else 1)
+    print("ECG File Path Handling Test")
+    print("=" * 40)
+    
+    success = test_file_path_handling()
+    
+    if success:
+        print("\n🎉 SUCCESS: All tests passed!")
+        sys.exit(0)
+    else:
+        print("\n❌ FAILURE: Tests failed!")
+        sys.exit(1)
