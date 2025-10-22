@@ -108,12 +108,8 @@ class ECGPredictionService:
             logger.info(f"🔍 Calling wfdb.rdrecord with base_path: {base_path}")
             logger.info(f"🔍 Directory contents: {os.listdir(os.path.dirname(base_path))}")
             
-            # Use wfdb.rdrecord with explicit parameters
-            record = wfdb.rdrecord(
-                record_name=os.path.basename(base_path),
-                pn_dir=os.path.dirname(base_path),
-                sampto=None
-            )
+            # Use wfdb.rdrecord with just the base path (no pn_dir to avoid PhysioNet downloads)
+            record = wfdb.rdrecord(base_path)
             
             logger.info(f"✅ Successfully loaded record with {len(record.sig_name)} signals")
             

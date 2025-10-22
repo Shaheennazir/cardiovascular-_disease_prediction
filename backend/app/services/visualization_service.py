@@ -20,25 +20,72 @@ class ECGVisualizationService:
         """Load ECG signal data"""
         logger.info("Loading ECG signal", file_path=file_path)
         try:
-            # Check if header file exists
-            header_path = file_path.replace('.dat', '.hea')
-            if not os.path.exists(header_path):
-                logger.error("Missing ECG header file", header_path=header_path)
-                raise FileNotFoundError(f"ECG header file not found: {header_path}. Please upload both .dat and .hea files.")
-            
-            # Read the ECG record using wfdb
-            # For local files, we pass the full file path without extension
+            # Get the absolute base path (without extension)
             logger.info(f"🧩 DEBUG: file_path received -> {file_path}")
-            logger.info(f"🧩 DEBUG: absolute path -> {os.path.abspath(file_path)}")
-            base_path = os.path.splitext(os.path.abspath(file_path))[0]
+            abs_file_path = os.path.abspath(file_path)
+            logger.info(f"🧩 DEBUG: absolute path -> {abs_file_path}")
+            base_path = os.path.splitext(abs_file_path)[0]
             logger.debug("Base path for wfdb", base_path=base_path)
             
             # Safety check to ensure files exist before calling wfdb
-            if not os.path.exists(base_path + ".dat"):
-                raise FileNotFoundError(f"ECG data file not found: {base_path}.dat")
-            if not os.path.exists(base_path + ".hea"):
-                raise FileNotFoundError(f"ECG header file not found: {base_path}.hea")
+            dat_file = base_path + ".dat"
+            hea_file = base_path + ".hea"
+            
+            if not os.path.exists(dat_file):
+                raise FileNotFoundError(f"ECG data file not found: {dat_file}")
+            if not os.path.exists(hea_file):
+                raise FileNotFoundError(f"ECG header file not found: {hea_file}")
+            
+            # --- COMPREHENSIVE HEADER FIX ---
+            try:
+                expected_name = os.path.basename(base_path)
                 
+                # Read the entire header file
+                with open(hea_file, "r", encoding="utf-8") as f:
+                    header_lines = f.readlines()
+                
+                if not header_lines:
+                    raise ValueError("Header file is empty")
+                
+                logger.info(f"📄 Original header first line: {header_lines[0].strip()}")
+                
+                # Parse the first line
+                first_line_parts = header_lines[0].strip().split()
+                old_record_name = first_line_parts[0]
+                
+                # If the record name doesn't match, update the entire header
+                if old_record_name != expected_name:
+                    logger.info(f"🔧 Fixing header: '{old_record_name}' → '{expected_name}'")
+                    
+                    # Update first line
+                    first_line_parts[0] = expected_name
+                    header_lines[0] = " ".join(first_line_parts) + "\n"
+                    
+                    # Update any other lines that reference the old filename
+                    for i in range(1, len(header_lines)):
+                        if old_record_name in header_lines[i]:
+                            header_lines[i] = header_lines[i].replace(old_record_name, expected_name)
+                            logger.info(f"📝 Updated line {i+1}: {header_lines[i].strip()}")
+                    
+                    # Write the corrected header back
+                    with open(hea_file, "w", encoding="utf-8") as f:
+                        f.writelines(header_lines)
+                    
+                    logger.info(f"✅ Header file updated successfully")
+                    
+                    # Verify the fix
+                    with open(hea_file, "r", encoding="utf-8") as f:
+                        verify_line = f.readline().strip()
+                    logger.info(f"📄 Verified header first line: {verify_line}")
+                else:
+                    logger.info(f"✅ Header already correct: {expected_name}")
+                    
+            except Exception as e:
+                logger.error("Error fixing header file", error=str(e), exc_info=True)
+                raise
+            # --- END COMPREHENSIVE HEADER FIX ---
+                
+            # Read the ECG record using wfdb (with just the base path to avoid PhysioNet downloads)
             record = wfdb.rdrecord(base_path)
             
             # Extract signal data (using first lead for simplicity)
