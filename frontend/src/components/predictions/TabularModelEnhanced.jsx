@@ -269,9 +269,9 @@ const TabularModelEnhanced = () => {
                       <Select.Value placeholder="Select cholesterol level" />
                     </Select.Trigger>
                     <Select.Content>
-                      <Select.Item value="0">Normal</Select.Item>
-                      <Select.Item value="1">Above Normal</Select.Item>
-                      <Select.Item value="2">Well Above Normal</Select.Item>
+                      <Select.Item value="0">Low</Select.Item>
+                      <Select.Item value="1">Normal</Select.Item>
+                      <Select.Item value="2">High</Select.Item>
                     </Select.Content>
                   </Select>
                 </div>
@@ -283,9 +283,9 @@ const TabularModelEnhanced = () => {
                       <Select.Value placeholder="Select glucose level" />
                     </Select.Trigger>
                     <Select.Content>
-                      <Select.Item value="0">Normal</Select.Item>
-                      <Select.Item value="1">Above Normal</Select.Item>
-                      <Select.Item value="2">Well Above Normal</Select.Item>
+                      <Select.Item value="0">Low</Select.Item>
+                      <Select.Item value="1">Normal</Select.Item>
+                      <Select.Item value="2">High</Select.Item>
                     </Select.Content>
                   </Select>
                 </div>
