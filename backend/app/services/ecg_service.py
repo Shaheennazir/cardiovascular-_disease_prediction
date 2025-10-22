@@ -35,78 +35,80 @@ class ECGPredictionService:
             self.model = None
     
     @performance_monitor(logger)
-def preprocess_ecg_file(self, file_path: str) -> np.ndarray:
-    """Preprocess ECG file for prediction"""
-    logger.info("Preprocessing ECG file", file_path=file_path)
-    try:
-        # Check if header file exists
-        header_path = file_path.replace('.dat', '.hea')
-        if not os.path.exists(header_path):
-            logger.error("Missing ECG header file", header_path=header_path)
-            raise FileNotFoundError(f"ECG header file not found: {header_path}. Please upload both .dat and .hea files.")
-        
-        # Get the absolute base path (without extension)
-        logger.info(f"🧩 DEBUG: file_path received -> {file_path}")
-        abs_file_path = os.path.abspath(file_path)
-        logger.info(f"🧩 DEBUG: absolute path -> {abs_file_path}")
-        base_path = os.path.splitext(abs_file_path)[0]
-        logger.debug("Base path for wfdb", base_path=base_path)
-        
-        # Safety check to ensure files exist before calling wfdb
-        if not os.path.exists(base_path + ".dat"):
-            raise FileNotFoundError(f"ECG data file not found: {base_path}.dat")
-        if not os.path.exists(base_path + ".hea"):
-            raise FileNotFoundError(f"ECG header file not found: {base_path}.hea")
-        
-        # --- FIX HEADER NAME MISMATCH ---
+    def preprocess_ecg_file(self, file_path: str) -> np.ndarray:
+        """Preprocess ECG file for prediction"""
+        logger.info("Preprocessing ECG file", file_path=file_path)
         try:
-            header_path = base_path + ".hea"
-            with open(header_path, "r+", encoding="utf-8") as f:
-                content = f.read()
-                lines = content.splitlines()
-                if lines and not lines[0].startswith(os.path.basename(base_path)):
-                    parts = lines[0].split()
-                    old_name = parts[0]
-                    parts[0] = os.path.basename(base_path)
-                    lines[0] = " ".join(parts)
-                    f.seek(0)
-                    f.write("\n".join(lines))
-                    f.truncate()
-                    logger.info(f"🩺 Updated header base name from '{old_name}' → '{parts[0]}'")
+            # Check if header file exists
+            header_path = file_path.replace('.dat', '.hea')
+            if not os.path.exists(header_path):
+                logger.error("Missing ECG header file", header_path=header_path)
+                raise FileNotFoundError(f"ECG header file not found: {header_path}. Please upload both .dat and .hea files.")
+            
+            # Read the ECG record using wfdb
+            # For local files, we pass the full file path without extension
+            logger.info(f"🧩 DEBUG: file_path received -> {file_path}")
+            logger.info(f"🧩 DEBUG: absolute path -> {os.path.abspath(file_path)}")
+            base_path = os.path.splitext(os.path.abspath(file_path))[0]
+            logger.debug("Base path for wfdb", base_path=base_path)
+            
+            # Safety check to ensure files exist before calling wfdb
+            if not os.path.exists(base_path + ".dat"):
+                raise FileNotFoundError(f"ECG data file not found: {base_path}.dat")
+            if not os.path.exists(base_path + ".hea"):
+                raise FileNotFoundError(f"ECG header file not found: {base_path}.hea")
+            
+            # --- FIX HEADER NAME MISMATCH ---
+            try:
+                header_path = base_path + ".hea"
+                with open(header_path, "r+", encoding="utf-8") as f:
+                    content = f.read()
+                    lines = content.splitlines()
+                    if lines and not lines[0].startswith(os.path.basename(base_path)):
+                        parts = lines[0].split()
+                        old_name = parts[0]
+                        parts[0] = os.path.basename(base_path)
+                        lines[0] = " ".join(parts)
+                        f.seek(0)
+                        f.write("\n".join(lines))
+                        f.truncate()
+                        logger.info(f"🩺 Updated header base name from '{old_name}' → '{parts[0]}'")
+            except Exception as e:
+                logger.warning("Could not rewrite ECG header prefix", error=str(e))
+            # --- END FIX HEADER NAME MISMATCH ---
+                
+            # Force WFDB to use the updated header file explicitly
+            record_name = os.path.splitext(os.path.basename(base_path))[0]
+            record = wfdb.rdrecord(
+                os.path.join(os.path.dirname(base_path), record_name)
+            )
+            
+            logger.info(f"✅ Successfully loaded record: {record.__dict__.keys()}")
+            
+            # Extract signal data
+            signal = record.p_signal
+            logger.debug("ECG signal extracted", signal_shape=signal.shape)
+            
+            # Normalize signal
+            signal = (signal - np.mean(signal)) / np.std(signal)
+            logger.debug("ECG signal normalized")
+            
+            # Reshape for model input (assuming model expects specific shape)
+            # This would need to be adjusted based on the actual model requirements
+            if len(signal.shape) == 1:
+                signal = signal.reshape(1, -1, 1)
+            elif len(signal.shape) == 2 and signal.shape[1] == 1:
+                signal = signal.reshape(1, -1, 1)
+            else:
+                signal = signal.reshape(1, signal.shape[0], signal.shape[1])
+                
+            logger.debug("ECG signal reshaped", final_shape=signal.shape)
+            return signal
         except Exception as e:
-            logger.warning("Could not rewrite ECG header prefix", error=str(e))
-        # --- END FIX HEADER NAME MISMATCH ---
-            
-        # ✅ THE FIX: Pass the base_path directly to wfdb.rdrecord
-        # wfdb expects the path WITHOUT extension and will look for .dat and .hea files
-        record = wfdb.rdrecord(base_path)
-        
-        logger.info(f"✅ Successfully loaded record: {record.__dict__.keys()}")
-        
-        # Extract signal data
-        signal = record.p_signal
-        logger.debug("ECG signal extracted", signal_shape=signal.shape)
-        
-        # Normalize signal
-        signal = (signal - np.mean(signal)) / np.std(signal)
-        logger.debug("ECG signal normalized")
-        
-        # Reshape for model input (assuming model expects specific shape)
-        # This would need to be adjusted based on the actual model requirements
-        if len(signal.shape) == 1:
-            signal = signal.reshape(1, -1, 1)
-        elif len(signal.shape) == 2 and signal.shape[1] == 1:
-            signal = signal.reshape(1, -1, 1)
-        else:
-            signal = signal.reshape(1, signal.shape[0], signal.shape[1])
-            
-        logger.debug("ECG signal reshaped", final_shape=signal.shape)
-        return signal
-    except Exception as e:
-        logger.error("Error preprocessing ECG file", error=str(e), exc_info=True)
-        # Return dummy data for testing
-        logger.warning("Using dummy ECG data for testing")
-        return np.random.rand(1, 1000, 1).astype(np.float32)
+            logger.error("Error preprocessing ECG file", error=str(e), exc_info=True)
+            # Return dummy data for testing
+            logger.warning("Using dummy ECG data for testing")
+            return np.random.rand(1, 1000, 1).astype(np.float32)
     
     @performance_monitor(logger)
     def predict(self, file_path: str) -> Dict[str, Any]:
