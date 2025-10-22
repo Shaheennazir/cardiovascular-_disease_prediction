@@ -187,7 +187,7 @@ async def predict_ecg(
             logger.error("Missing ECG header file for visualization", error=str(e))
             # Continue without visualization if header file is missing
             viz_path = None
-        visualization_url = f"/api/v1/ecg/{prediction_id}/visualization" if viz_path else None
+        visualization_url = f"/api/v1/ecg/{prediction_id}/visualization" if viz_path else ""
         
         # Save prediction to database
         prediction_id = str(uuid.uuid4())

@@ -31,7 +31,7 @@ class EcgPredictionResult(BaseModel):
     probabilities: Dict[str, float]
     confidence: float
     explanation: Dict
-    visualization_url: str
+    visualization_url: str = ""
     created_at: datetime
 
 class PredictionHistoryItem(BaseModel):

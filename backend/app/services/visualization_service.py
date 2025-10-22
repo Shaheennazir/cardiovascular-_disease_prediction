@@ -26,7 +26,9 @@ class ECGVisualizationService:
                 raise FileNotFoundError(f"ECG header file not found: {header_path}. Please upload both .dat and .hea files.")
             
             # Read the ECG record using wfdb
-            record = wfdb.rdrecord(file_path.replace('.dat', ''))
+            # Extract the base name without extension and path
+            base_name = os.path.splitext(os.path.basename(file_path))[0]
+            record = wfdb.rdrecord(os.path.join(os.path.dirname(file_path), base_name))
             
             # Extract signal data (using first lead for simplicity)
             signal = record.p_signal[:, 0] if len(record.p_signal.shape) > 1 else record.p_signal
