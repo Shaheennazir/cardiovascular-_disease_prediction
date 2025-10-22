@@ -1,6 +1,7 @@
 import pickle
 import joblib
 import numpy as np
+import pandas as pd
 import os
 from typing import Dict, Any
 from sklearn.preprocessing import StandardScaler
@@ -60,26 +61,14 @@ class TabularPredictionService:
     @performance_monitor(logger)
     def preprocess_input(self, input_data: Dict[str, Any]) -> np.ndarray:
         """Preprocess input data for prediction"""
-        # Convert input data to array in the correct order
-        input_array = np.array([[
-            input_data['age'],
-            input_data['gender'],
-            input_data['height'],
-            input_data['weight'],
-            input_data['ap_hi'],
-            input_data['ap_lo'],
-            input_data['cholesterol'],
-            input_data['gluc'],
-            input_data['smoke'],
-            input_data['alco'],
-            input_data['active']
-        ]])
+        # Convert input data to DataFrame with proper feature names
+        input_df = pd.DataFrame([input_data])[self.feature_names]
         
         # Scale the input data
         if self.scaler is not None:
-            input_scaled = self.scaler.transform(input_array)
+            input_scaled = self.scaler.transform(input_df)
         else:
-            input_scaled = input_array
+            input_scaled = input_df.values
             
         return input_scaled
     
@@ -106,7 +95,12 @@ class TabularPredictionService:
         
         # Make prediction
         logger.debug("Making prediction with model")
-        probability = self.model.predict_proba(input_processed)[0][1]
+        # Convert to DataFrame with feature names to avoid warnings
+        if hasattr(self.model, 'feature_names_in_'):
+            input_df = pd.DataFrame(input_processed, columns=self.model.feature_names_in_)
+            probability = self.model.predict_proba(input_df)[0][1]
+        else:
+            probability = self.model.predict_proba(input_processed)[0][1]
         risk_level = "High Risk" if probability > 0.5 else "Low Risk"
         
         # Calculate confidence (distance from 0.5)
