@@ -105,28 +105,55 @@ async def predict_tabular(
 
 @router.post("/ecg", response_model=EcgPredictionResult)
 async def predict_ecg(
-    file: UploadFile = File(...),
+    files: list[UploadFile] = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
     """Upload ECG file for arrhythmia detection"""
     logger.info("ECG prediction request received",
                  user_id=current_user.id,
-                 file_name=file.filename,
-                 file_size=getattr(file, 'size', None))
+                 file_count=len(files))
     try:
-        # Save uploaded file
+        # Validate that we have both .dat and .hea files
+        dat_files = [f for f in files if f.filename.endswith('.dat')]
+        hea_files = [f for f in files if f.filename.endswith('.hea')]
+        
+        if len(dat_files) != 1 or len(hea_files) != 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Please upload exactly one .dat file and one .hea file."
+            )
+        
+        dat_file = dat_files[0]
+        hea_file = hea_files[0]
+        
+        # Save uploaded files
         upload_dir = os.path.join("uploads", "ecg_files")
         os.makedirs(upload_dir, exist_ok=True)
-        file_path = os.path.join(upload_dir, f"{uuid.uuid4()}_{file.filename}")
         
-        with open(file_path, "wb") as buffer:
-            content = await file.read()
-            buffer.write(content)
-        logger.info("ECG file saved",
+        # Save .dat file
+        dat_filename = f"{uuid.uuid4()}_{dat_file.filename}"
+        dat_file_path = os.path.join(upload_dir, dat_filename)
+        with open(dat_file_path, "wb") as buffer:
+            dat_content = await dat_file.read()
+            buffer.write(dat_content)
+        
+        # Save .hea file
+        hea_filename = dat_filename.replace('.dat', '.hea')
+        hea_file_path = os.path.join(upload_dir, hea_filename)
+        with open(hea_file_path, "wb") as buffer:
+            hea_content = await hea_file.read()
+            buffer.write(hea_content)
+        
+        logger.info("ECG files saved",
                      user_id=current_user.id,
-                     file_path=file_path,
-                     file_size=len(content))
+                     dat_file_path=dat_file_path,
+                     hea_file_path=hea_file_path,
+                     dat_file_size=len(dat_content),
+                     hea_file_size=len(hea_content))
+        
+        # Use the .dat file path for processing
+        file_path = dat_file_path
         
         # Make prediction
         try:
@@ -172,7 +199,12 @@ async def predict_ecg(
             id=prediction_id,
             user_id=current_user.id,
             type="ecg",
-            input_data={"file_name": file.filename, "file_size": len(content)},
+            input_data={
+                "dat_file_name": dat_file.filename,
+                "dat_file_size": len(dat_content),
+                "hea_file_name": hea_file.filename,
+                "hea_file_size": len(hea_content)
+            },
             result_data=result_data,
             confidence_score=prediction_result["confidence"]
         )
@@ -185,8 +217,8 @@ async def predict_ecg(
         db_ecg = EcgData(
             prediction_id=prediction_id,
             file_path=file_path,
-            file_name=file.filename,
-            file_size=len(content),
+            file_name=dat_file.filename,
+            file_size=len(dat_content),
             processed_signal=None,  # Would be populated in a real implementation
             abnormalities=abnormalities
         )
@@ -221,9 +253,11 @@ async def predict_ecg(
                       error=str(e),
                       exc_info=True)
         db.rollback()
-        # Clean up uploaded file if saving to DB failed
-        if 'file_path' in locals() and os.path.exists(file_path):
-            os.remove(file_path)
+        # Clean up uploaded files if saving to DB failed
+        if 'dat_file_path' in locals() and os.path.exists(dat_file_path):
+            os.remove(dat_file_path)
+        if 'hea_file_path' in locals() and os.path.exists(hea_file_path):
+            os.remove(hea_file_path)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error processing ECG prediction: {str(e)}"

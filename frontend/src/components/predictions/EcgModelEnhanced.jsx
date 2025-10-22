@@ -6,7 +6,7 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import apiService from '../../api';
 
 const EcgModelEnhanced = () => {
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -28,33 +28,59 @@ const EcgModelEnhanced = () => {
     
     const droppedFiles = Array.from(e.dataTransfer.files);
     if (droppedFiles.length > 0) {
-      validateAndSetFile(droppedFiles[0]);
+      validateAndSetFiles(droppedFiles);
     }
   };
 
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      validateAndSetFile(selectedFile);
+    const selectedFiles = Array.from(e.target.files);
+    if (selectedFiles.length > 0) {
+      validateAndSetFiles(selectedFiles);
     }
   };
 
-  const validateAndSetFile = (file) => {
-    // Check file type
-    // For ECG data, we're accepting .dat files which are binary
-    if (!file.name.endsWith('.dat')) {
-      setError('Invalid file type. Please upload a .dat file. Note: You must also provide the corresponding .hea header file.');
-      return;
-    }
-    
-    // Check file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      setError('File size exceeds 10MB limit.');
-      return;
-    }
-    
-    setFile(file);
+  const validateAndSetFiles = (files) => {
+    // Reset error
     setError('');
+    
+    // Check that we have exactly 2 files
+    if (files.length !== 2) {
+      setError('Please select exactly two files: one .dat file and one .hea file.');
+      setFiles([]);
+      return;
+    }
+    
+    // Check file types
+    const datFiles = files.filter(file => file.name.endsWith('.dat'));
+    const heaFiles = files.filter(file => file.name.endsWith('.hea'));
+    
+    if (datFiles.length !== 1 || heaFiles.length !== 1) {
+      setError('Please upload exactly one .dat file and one .hea file.');
+      setFiles([]);
+      return;
+    }
+    
+    const datFile = datFiles[0];
+    const heaFile = heaFiles[0];
+    
+    // Check file sizes (max 10MB each)
+    if (datFile.size > 10 * 1024 * 1024 || heaFile.size > 10 * 1024 * 1024) {
+      setError('File size exceeds 10MB limit for one or both files.');
+      setFiles([]);
+      return;
+    }
+    
+    // Check that filenames match (except extension)
+    const datName = datFile.name.replace('.dat', '');
+    const heaName = heaFile.name.replace('.hea', '');
+    
+    if (datName !== heaName) {
+      setError('The .dat and .hea files must have matching names.');
+      setFiles([]);
+      return;
+    }
+    
+    setFiles([datFile, heaFile]);
   };
 
   const handleBrowseClick = () => {
@@ -63,8 +89,8 @@ const EcgModelEnhanced = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file) {
-      setError('Please select a file first.');
+    if (files.length !== 2) {
+      setError('Please select exactly two files: one .dat file and one .hea file.');
       return;
     }
     
@@ -73,7 +99,7 @@ const EcgModelEnhanced = () => {
     setResult(null);
     
     try {
-      const response = await apiService.predictEcg(file);
+      const response = await apiService.predictEcg(files);
       
       // Transform response to match existing UI structure
       setResult({
@@ -99,7 +125,7 @@ const EcgModelEnhanced = () => {
   };
 
   const resetForm = () => {
-    setFile(null);
+    setFiles([]);
     setResult(null);
     setError('');
   };
@@ -216,7 +242,8 @@ const EcgModelEnhanced = () => {
                   ref={fileInputRef}
                   onChange={handleFileChange}
                   className="hidden"
-                  accept=".dat"
+                  accept=".dat,.hea"
+                  multiple
                 />
                 
                 <div className="flex flex-col items-center justify-center space-y-4">
@@ -228,10 +255,10 @@ const EcgModelEnhanced = () => {
                   
                   <div>
                     <p className="font-medium text-foreground">
-                      {file ? file.name : 'Drag & drop your ECG file here'}
+                      {files.length > 0 ? `${files.length} file(s) selected` : 'Drag & drop your ECG files here'}
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      {file ? `${(file.size / 1024).toFixed(1)} KB` : 'Supports .dat format (Max 10MB). You must also provide the corresponding .hea header file.'}
+                      {files.length > 0 ? 'Ready for upload' : 'Supports .dat and .hea formats (Max 10MB each). Select both files together.'}
                     </p>
                   </div>
                   
@@ -241,28 +268,34 @@ const EcgModelEnhanced = () => {
                 </div>
               </div>
               
-              {file && (
+              {files.length > 0 && (
                 <div className="p-4 bg-muted/50 rounded-lg border border-border animate-fade-in">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-primary/10 rounded-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <div className="space-y-3">
+                    {files.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-2 bg-primary/10 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground">{file.name}</p>
+                            <p className="text-sm text-muted-foreground">{(file.size / 1024).toFixed(1)} KB</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex justify-end">
+                      <button
+                        onClick={resetForm}
+                        className="p-2 text-muted-foreground hover:text-destructive rounded-full hover:bg-destructive/10 transition-colors duration-200"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">{file.name}</p>
-                        <p className="text-sm text-muted-foreground">{(file.size / 1024).toFixed(1)} KB</p>
-                      </div>
+                      </button>
                     </div>
-                    <button 
-                      onClick={resetForm}
-                      className="p-2 text-muted-foreground hover:text-destructive rounded-full hover:bg-destructive/10 transition-colors duration-200"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
                   </div>
                 </div>
               )}
@@ -279,10 +312,10 @@ const EcgModelEnhanced = () => {
             </div>
           ) : (
             <div className="flex space-x-3">
-              <Button type="button" variant="secondary" onClick={resetForm} disabled={!file}>
+              <Button type="button" variant="secondary" onClick={resetForm} disabled={files.length === 0}>
                 Clear
               </Button>
-              <Button onClick={handleSubmit} disabled={isLoading || !file}>
+              <Button onClick={handleSubmit} disabled={isLoading || files.length !== 2}>
                 {isLoading ? (
                   <>
                     <LoadingSpinner className="mr-2 h-4 w-4" />

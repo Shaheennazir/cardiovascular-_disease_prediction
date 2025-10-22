@@ -88,9 +88,12 @@ class ApiService {
   }
 
   // ECG prediction endpoints
-  async predictEcg(file) {
+  async predictEcg(files) {
     const formData = new FormData();
-    formData.append('file', file);
+    // Append all files to the formData
+    files.forEach(file => {
+      formData.append('files', file);
+    });
     
     return this.request('/predict/ecg', {
       method: 'POST',
