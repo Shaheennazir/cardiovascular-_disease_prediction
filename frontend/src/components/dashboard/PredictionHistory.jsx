@@ -10,7 +10,7 @@ import {
   TactileTableHead,
   TactileTableCell
 } from '../../components/ui/tactile-table';
-import { Heart, Activity, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import apiService from '../../api';
 
 const PredictionHistory = () => {
@@ -32,26 +32,6 @@ const PredictionHistory = () => {
       console.error('Error fetching history:', err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const getTypeIcon = (type) => {
-    switch (type) {
-      case 'ecg':
-        return <Activity className="h-4 w-4" />;
-      case 'tabular':
-      default:
-        return <Heart className="h-4 w-4" />;
-    }
-  };
-
-  const getTypeColor = (type) => {
-    switch (type) {
-      case 'ecg':
-        return 'bg-blue-500/10 text-blue-500';
-      case 'tabular':
-      default:
-        return 'bg-red-500/10 text-red-500';
     }
   };
 
