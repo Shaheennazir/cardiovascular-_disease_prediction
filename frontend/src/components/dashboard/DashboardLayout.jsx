@@ -11,23 +11,23 @@ const DashboardLayout = ({ children, onLogout }) => {
   ];
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-[#1a1a1a]">
       {/* Sidebar */}
-      <aside 
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-card border-r border-border transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:transform-none ${
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-[#2a2a2a] border-r-2 border-solid border-[#4a4a4a] transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:transform-none ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between h-16 px-4 border-b border-border">
+        <div className="flex items-center justify-between h-20 px-4 border-b-2 border-solid border-[#4a4a4a]">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-              <User className="h-5 w-5 text-primary-foreground" />
+            <div className="w-8 h-8 rounded-full bg-[#f20d80] flex items-center justify-center">
+              <User className="h-5 w-5 text-white" />
             </div>
-            <span className="text-lg font-semibold text-foreground">User Name</span>
+            <span className="text-white text-lg font-bold">User Name</span>
           </div>
-          <button 
+          <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-1 rounded-md text-foreground hover:bg-accent"
+            className="lg:hidden p-1 rounded-md text-white hover:bg-[#4a4a4a]"
           >
             <X className="h-6 w-6" />
           </button>
@@ -38,9 +38,9 @@ const DashboardLayout = ({ children, onLogout }) => {
               <li key={item.name}>
                 <a
                   href={item.href}
-                  className="flex items-center p-3 text-foreground rounded-lg hover:bg-accent transition-all duration-200 group"
+                  className="flex items-center p-3 text-white rounded-[3rem] hover:bg-[#4a4a4a] transition-all duration-200 group"
                 >
-                  <item.icon className="h-5 w-5 mr-3 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+                  <item.icon className="h-5 w-5 mr-3 text-[#6a6a6a] group-hover:text-[#f20d80] transition-colors duration-200" />
                   <span>{item.name}</span>
                 </a>
               </li>
@@ -51,7 +51,7 @@ const DashboardLayout = ({ children, onLogout }) => {
 
       {/* Overlay for mobile */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-30 bg-black/50 lg:hidden transition-opacity duration-300"
           onClick={() => setSidebarOpen(false)}
         ></div>
@@ -60,27 +60,27 @@ const DashboardLayout = ({ children, onLogout }) => {
       {/* Main content */}
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Header */}
-        <header className="bg-background border-b border-border">
+        <header className="bg-[#1a1a1a] border-b-2 border-solid border-[#4a4a4a]">
           <div className="flex items-center justify-between p-4">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="p-2 rounded-md text-foreground hover:bg-accent lg:hidden transition-colors duration-200"
+              className="p-2 rounded-md text-white hover:bg-[#2a2a2a] lg:hidden transition-colors duration-200"
             >
               <Menu className="h-6 w-6" />
             </button>
-            <h1 className="text-xl font-semibold text-foreground">Dashboard</h1>
+            <h1 className="text-white text-xl font-bold">Dashboard</h1>
             <button
               onClick={onLogout}
-              className="flex items-center px-3 py-2 text-sm rounded-md text-foreground hover:bg-accent transition-colors duration-200"
+              className="flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-10 px-6 bg-[#f20d80] text-white text-base font-extrabold leading-normal tracking-[0.015em] hover:bg-[#f20d80]/80 transition-colors"
             >
               <LogOut className="h-4 w-4 mr-2" />
-              Logout
+              <span className="truncate">Logout</span>
             </button>
           </div>
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-muted/30 animate-fade-in">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-[#1a1a1a] animate-fade-in">
           {children}
         </main>
       </div>

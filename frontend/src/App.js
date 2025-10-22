@@ -112,7 +112,7 @@ function App() {
   if (!isLoggedIn && showLogin) {
     return (
       <ToastProvider>
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-[#1a1a1a]">
           <Header
             isLoggedIn={false}
             onLogin={handleShowLogin}
@@ -120,110 +120,110 @@ function App() {
           />
           <main className="container py-8">
             <div className="mx-auto max-w-md">
-              <div className="rounded-lg border bg-card p-6 shadow-sm">
-                <h2 className="text-2xl font-bold mb-6 text-center">{isRegistering ? 'Register' : 'Login'}</h2>
+              <div className="rounded-[3rem] bg-[#2a2a2a] p-8">
+                <h2 className="text-white text-3xl font-extrabold mb-8 text-center">{isRegistering ? 'Register' : 'Login'}</h2>
                 
                 {error && (
-                  <div className="bg-destructive/10 border border-destructive/50 rounded-md p-3 mb-4">
-                    <p className="text-destructive text-sm">{error}</p>
+                  <div className="bg-[#f20d80]/10 border-2 border-solid border-[#f20d80] rounded-[3rem] p-4 mb-6">
+                    <p className="text-[#f20d80] text-base font-normal">{error}</p>
                   </div>
                 )}
                 
                 {isRegistering ? (
-                  <form onSubmit={handleRegister} className="space-y-4">
-                    <div className="space-y-2">
-                      <label htmlFor="username" className="text-sm font-medium">Username</label>
+                  <form onSubmit={handleRegister} className="space-y-6">
+                    <div className="space-y-4">
+                      <label htmlFor="username" className="text-white text-base font-bold">Username</label>
                       <input
                         id="username"
                         type="text"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         required
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex h-14 w-full rounded-[3rem] border-2 border-solid border-[#4a4a4a] bg-[#1a1a1a] px-6 py-4 text-white text-base font-normal ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[#6a6a6a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f20d80] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       />
                     </div>
                     
-                    <div className="space-y-2">
-                      <label htmlFor="email" className="text-sm font-medium">Email</label>
+                    <div className="space-y-4">
+                      <label htmlFor="email" className="text-white text-base font-bold">Email</label>
                       <input
                         id="email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex h-14 w-full rounded-[3rem] border-2 border-solid border-[#4a4a4a] bg-[#1a1a1a] px-6 py-4 text-white text-base font-normal ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[#6a6a6a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f20d80] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       />
                     </div>
                     
-                    <div className="space-y-2">
-                      <label htmlFor="password" className="text-sm font-medium">Password</label>
+                    <div className="space-y-4">
+                      <label htmlFor="password" className="text-white text-base font-bold">Password</label>
                       <input
                         id="password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex h-14 w-full rounded-[3rem] border-2 border-solid border-[#4a4a4a] bg-[#1a1a1a] px-6 py-4 text-white text-base font-normal ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[#6a6a6a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f20d80] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       />
                     </div>
                     
                     <button
                       type="submit"
-                      className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+                      className="flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-14 px-8 bg-[#f20d80] text-white text-lg font-extrabold leading-normal tracking-[0.015em] hover:bg-[#f20d80]/80 transition-colors w-full"
                     >
-                      Register
+                      <span className="truncate">Register</span>
                     </button>
                     
-                    <p className="text-center text-sm">
+                    <p className="text-center text-[#6a6a6a] text-base font-normal">
                       Already have an account?{' '}
                       <button
                         type="button"
                         onClick={() => setIsRegistering(false)}
-                        className="text-primary underline-offset-4 hover:underline"
+                        className="text-[#f20d80] underline-offset-4 hover:underline"
                       >
                         Login
                       </button>
                     </p>
                   </form>
                 ) : (
-                  <form onSubmit={handleLogin} className="space-y-4">
-                    <div className="space-y-2">
-                      <label htmlFor="login-username" className="text-sm font-medium">Username</label>
+                  <form onSubmit={handleLogin} className="space-y-6">
+                    <div className="space-y-4">
+                      <label htmlFor="login-username" className="text-white text-base font-bold">Username</label>
                       <input
                         id="login-username"
                         type="text"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         required
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex h-14 w-full rounded-[3rem] border-2 border-solid border-[#4a4a4a] bg-[#1a1a1a] px-6 py-4 text-white text-base font-normal ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[#6a6a6a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f20d80] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       />
                     </div>
                     
-                    <div className="space-y-2">
-                      <label htmlFor="login-password" className="text-sm font-medium">Password</label>
+                    <div className="space-y-4">
+                      <label htmlFor="login-password" className="text-white text-base font-bold">Password</label>
                       <input
                         id="login-password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex h-14 w-full rounded-[3rem] border-2 border-solid border-[#4a4a4a] bg-[#1a1a1a] px-6 py-4 text-white text-base font-normal ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[#6a6a6a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f20d80] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       />
                     </div>
                     
                     <button
                       type="submit"
-                      className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+                      className="flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-14 px-8 bg-[#f20d80] text-white text-lg font-extrabold leading-normal tracking-[0.015em] hover:bg-[#f20d80]/80 transition-colors w-full"
                     >
-                      Login
+                      <span className="truncate">Login</span>
                     </button>
                     
-                    <p className="text-center text-sm">
+                    <p className="text-center text-[#6a6a6a] text-base font-normal">
                       Don't have an account?{' '}
                       <button
                         type="button"
                         onClick={() => setIsRegistering(true)}
-                        className="text-primary underline-offset-4 hover:underline"
+                        className="text-[#f20d80] underline-offset-4 hover:underline"
                       >
                         Register
                       </button>
@@ -231,10 +231,10 @@ function App() {
                   </form>
                 )}
                 
-                <div className="mt-6 text-center">
+                <div className="mt-8 text-center">
                   <button
                     onClick={() => setShowLogin(false)}
-                    className="text-sm text-primary hover:underline"
+                    className="text-[#6a6a6a] text-base font-normal hover:text-[#f20d80] hover:underline"
                   >
                     ← Back to Home
                   </button>
@@ -250,46 +250,46 @@ function App() {
   return (
     <ToastProvider>
       <DashboardLayout onLogout={handleLogout}>
-        <div className="mb-4 flex gap-2">
+        <div className="mb-6 flex flex-wrap gap-4">
           <button
             onClick={() => setActiveView('dashboard')}
-            className={`px-4 py-2 rounded-md text-sm font-medium ${
+            className={`flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-12 px-6 text-base font-extrabold leading-normal tracking-[0.015em] transition-colors w-fit ${
               activeView === 'dashboard'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted hover:bg-muted/80'
+                ? 'bg-[#f20d80] text-white'
+                : 'bg-[#2a2a2a] text-[#6a6a6a] hover:bg-[#4a4a4a] border-2 border-solid border-[#4a4a4a]'
             }`}
           >
-            Dashboard
+            <span className="truncate">Dashboard</span>
           </button>
           <button
             onClick={() => setActiveView('tabular')}
-            className={`px-4 py-2 rounded-md text-sm font-medium ${
+            className={`flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-12 px-6 text-base font-extrabold leading-normal tracking-[0.015em] transition-colors w-fit ${
               activeView === 'tabular'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted hover:bg-muted/80'
+                ? 'bg-[#f20d80] text-white'
+                : 'bg-[#2a2a2a] text-[#6a6a6a] hover:bg-[#4a4a4a] border-2 border-solid border-[#4a4a4a]'
             }`}
           >
-            Tabular Prediction
+            <span className="truncate">Tabular Prediction</span>
           </button>
           <button
             onClick={() => setActiveView('ecg')}
-            className={`px-4 py-2 rounded-md text-sm font-medium ${
+            className={`flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-12 px-6 text-base font-extrabold leading-normal tracking-[0.015em] transition-colors w-fit ${
               activeView === 'ecg'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted hover:bg-muted/80'
+                ? 'bg-[#f20d80] text-white'
+                : 'bg-[#2a2a2a] text-[#6a6a6a] hover:bg-[#4a4a4a] border-2 border-solid border-[#4a4a4a]'
             }`}
           >
-            ECG Analysis
+            <span className="truncate">ECG Analysis</span>
           </button>
           <button
             onClick={() => setActiveView('history')}
-            className={`px-4 py-2 rounded-md text-sm font-medium ${
+            className={`flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-12 px-6 text-base font-extrabold leading-normal tracking-[0.015em] transition-colors w-fit ${
               activeView === 'history'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted hover:bg-muted/80'
+                ? 'bg-[#f20d80] text-white'
+                : 'bg-[#2a2a2a] text-[#6a6a6a] hover:bg-[#4a4a4a] border-2 border-solid border-[#4a4a4a]'
             }`}
           >
-            Prediction History
+            <span className="truncate">Prediction History</span>
           </button>
         </div>
         

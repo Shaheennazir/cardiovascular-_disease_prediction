@@ -58,7 +58,7 @@ const Select = ({ children, value, onValueChange, required, name, placeholder })
       )}
       
       <div
-        className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex h-14 w-full items-center justify-between rounded-[3rem] border-2 border-solid border-[#4a4a4a] bg-[#1a1a1a] px-6 py-4 text-base font-normal ring-offset-background placeholder:text-[#6a6a6a] focus:outline-none focus:ring-2 focus:ring-[#f20d80] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         onClick={handleToggle}
         tabIndex={0}
         onKeyDown={(e) => {
@@ -71,12 +71,12 @@ const Select = ({ children, value, onValueChange, required, name, placeholder })
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
-        <span className={value ? 'text-foreground' : 'text-muted-foreground'}>
+        <span className={value ? 'text-white' : 'text-[#6a6a6a]'}>
           {selectedLabel}
         </span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className={`h-4 w-4 opacity-50 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`h-5 w-5 text-[#6a6a6a] transition-transform ${isOpen ? 'rotate-180' : ''}`}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -118,7 +118,7 @@ const SelectItem = ({ value, children, onSelect, isSelected, className, ...props
   
   return (
     <div
-      className={`relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground ${isSelected ? 'bg-accent text-accent-foreground' : ''} ${className || ''}`}
+      className={`relative flex w-full cursor-default select-none items-center rounded-[3rem] py-3 pl-10 pr-4 text-base font-normal outline-none focus:bg-[#4a4a4a] focus:text-white ${isSelected ? 'bg-[#4a4a4a] text-white' : 'text-white'} ${className || ''}`}
       onClick={handleClick}
       onMouseDown={(e) => {
         e.preventDefault();
@@ -129,10 +129,10 @@ const SelectItem = ({ value, children, onSelect, isSelected, className, ...props
       {...props}
     >
       {isSelected && (
-        <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+        <span className="absolute left-3 flex h-5 w-5 items-center justify-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
+            className="h-5 w-5 text-[#f20d80]"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -159,7 +159,7 @@ const SelectTrigger = ({ children, className, ...props }) => (
 const SelectValue = ({ placeholder }) => <span>{placeholder}</span>;
 
 const SelectContent = ({ children, className, ...props }) => (
-  <div className={className} {...props}>
+  <div className={`mt-2 w-full rounded-[3rem] border-2 border-solid border-[#4a4a4a] bg-[#2a2a2a] p-2 ${className}`} {...props}>
     {children}
   </div>
 );

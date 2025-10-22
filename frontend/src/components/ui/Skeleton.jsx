@@ -6,7 +6,7 @@ const Skeleton = ({ className, ...props }) => {
   
   return (
     <div
-      className={cn('animate-pulse rounded-md bg-muted', className)}
+      className={cn('animate-pulse rounded-[3rem] bg-[#2a2a2a]', className)}
       {...props}
     />
   );

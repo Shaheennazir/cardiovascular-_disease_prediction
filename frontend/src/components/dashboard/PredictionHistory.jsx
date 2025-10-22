@@ -98,58 +98,63 @@ const PredictionHistory = () => {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Prediction History</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-6">
+        <h2 className="text-white text-[clamp(1.5rem,6vw,4rem)] font-extrabold leading-tight tracking-[-0.033em]">
+          Prediction History
+        </h2>
+      </div>
+      
+      <div className="flex flex-col gap-6">
         {history.length === 0 ? (
-          <div className="text-center py-8">
-            <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">No predictions yet</h3>
-            <p className="text-muted-foreground mb-4">
+          <div className="text-center py-12">
+            <Clock className="h-16 w-16 text-[#6a6a6a] mx-auto mb-6" />
+            <h3 className="text-white text-2xl font-bold mb-4">No predictions yet</h3>
+            <p className="text-[#6a6a6a] text-lg font-normal mb-6">
               Your prediction history will appear here once you've made some predictions.
             </p>
-            <Button>Create your first prediction</Button>
+            <button className="flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-14 px-8 bg-[#f20d80] text-white text-lg font-extrabold leading-normal tracking-[0.015em] hover:bg-[#f20d80]/80 transition-colors w-fit mx-auto">
+              <span className="truncate">Create your first prediction</span>
+            </button>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {history.map((prediction) => (
-              <div 
-                key={prediction.id} 
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors duration-200"
+              <div
+                key={prediction.id}
+                className="flex flex-col md:flex-row items-center justify-between p-6 bg-[#2a2a2a] rounded-[3rem] hover:bg-[#2a2a2a]/80 transition-colors duration-200"
               >
-                <div className="flex items-center space-x-4">
-                  <div className={`p-2 rounded-full ${getTypeColor(prediction.type)}`}>
+                <div className="flex items-center space-x-6 mb-4 md:mb-0">
+                  <div className={`p-4 rounded-full ${getTypeColor(prediction.type)}`}>
                     {getTypeIcon(prediction.type)}
                   </div>
                   <div>
-                    <h3 className="font-medium capitalize">{prediction.type} Prediction</h3>
-                    <p className={`text-sm ${getResultColor(prediction.result)}`}>
+                    <h3 className="text-white text-xl font-bold capitalize">{prediction.type} Prediction</h3>
+                    <p className={`text-lg font-normal ${getResultColor(prediction.result)}`}>
                       {prediction.result}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[#6a6a6a] text-base font-normal">
                       {new Date(prediction.created_at).toLocaleDateString()} at{' '}
                       {new Date(prediction.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium">
-                    {typeof prediction.confidence === 'number' 
-                      ? `${(prediction.confidence * 100).toFixed(0)}% confidence` 
+                <div className="text-center md:text-right">
+                  <p className="text-white text-lg font-bold mb-2">
+                    {typeof prediction.confidence === 'number'
+                      ? `${(prediction.confidence * 100).toFixed(0)}% confidence`
                       : 'N/A'}
                   </p>
-                  <Button variant="ghost" size="sm" className="mt-1">
-                    View Details
-                  </Button>
+                  <button className="flex min-w-[100px] max-w-[300px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-10 px-6 bg-[#1a1a1a] text-white text-base font-extrabold leading-normal tracking-[0.015em] hover:bg-[#4a4a4a] transition-colors w-fit border-2 border-solid border-[#4a4a4a] mx-auto md:mx-0">
+                    <span className="truncate">View Details</span>
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
