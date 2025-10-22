@@ -1,4 +1,5 @@
 import pickle
+import joblib
 import numpy as np
 import os
 from typing import Dict, Any
@@ -26,18 +27,28 @@ class TabularPredictionService:
             # Load the model
             model_path = os.path.join("models", "best_tabular_model.pkl")
             if os.path.exists(model_path):
-                with open(model_path, 'rb') as f:
-                    self.model = pickle.load(f)
-                logger.info("Model loaded successfully", model_path=model_path)
+                try:
+                    self.model = joblib.load(model_path)
+                    logger.info("Model loaded successfully with joblib", model_path=model_path)
+                except Exception as e:
+                    logger.warning(f"Failed to load model with joblib: {e}, trying pickle", model_path=model_path)
+                    with open(model_path, 'rb') as f:
+                        self.model = pickle.load(f)
+                    logger.info("Model loaded successfully with pickle", model_path=model_path)
             else:
                 logger.warning("Model file not found, using dummy model", model_path=model_path)
             
             # Load the scaler
             scaler_path = os.path.join("models", "tabular_scaler.pkl")
             if os.path.exists(scaler_path):
-                with open(scaler_path, 'rb') as f:
-                    self.scaler = pickle.load(f)
-                logger.info("Scaler loaded successfully", scaler_path=scaler_path)
+                try:
+                    self.scaler = joblib.load(scaler_path)
+                    logger.info("Scaler loaded successfully with joblib", scaler_path=scaler_path)
+                except Exception as e:
+                    logger.warning(f"Failed to load scaler with joblib: {e}, trying pickle", scaler_path=scaler_path)
+                    with open(scaler_path, 'rb') as f:
+                        self.scaler = pickle.load(f)
+                    logger.info("Scaler loaded successfully with pickle", scaler_path=scaler_path)
             else:
                 logger.warning("Scaler file not found, using default scaler", scaler_path=scaler_path)
         except Exception as e:

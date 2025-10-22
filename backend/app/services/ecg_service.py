@@ -21,7 +21,13 @@ class ECGPredictionService:
             model_path = os.path.join("models", "best_ecg_model.h5")
             if os.path.exists(model_path):
                 self.model = tf.keras.models.load_model(model_path)
-                logger.info("ECG model loaded successfully", model_path=model_path)
+                # Compile the model after loading to resolve metrics warning
+                self.model.compile(
+                    optimizer='adam',
+                    loss='binary_crossentropy',
+                    metrics=['accuracy']
+                )
+                logger.info("ECG model loaded and compiled successfully", model_path=model_path)
             else:
                 logger.warning("ECG model file not found, using dummy model", model_path=model_path)
         except Exception as e:

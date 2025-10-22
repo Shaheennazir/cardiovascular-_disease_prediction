@@ -1,3 +1,8 @@
+import os
+# Set environment variables to suppress CUDA warnings
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # Force CPU only
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'   # Reduce TF logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn

@@ -46,6 +46,7 @@ pip install 'pydantic[email]'
 pip install numpy==1.24.3
 pip install scipy==1.10.1
 pip install contourpy==1.1.1
+pip install joblib
 
 # Copy .env.example to .env if .env doesn't exist
 if [ ! -f ".env" ]; then

@@ -111,6 +111,17 @@ python -m app.db.init_db
 ### Tabular Prediction Service
 Processes patient data (age, gender, blood pressure, etc.) to predict cardiovascular risk using a trained machine learning model.
 
+**Model Loading Improvements:**
+- Uses joblib for better compatibility with sklearn models
+- Includes fallback to pickle if joblib fails
+- Better error handling and logging
+
+**To regenerate model files:**
+```bash
+cd backend
+python regenerate_models.py
+```
+
 ### ECG Prediction Service
 Analyzes ECG signals to detect arrhythmias and other cardiac abnormalities.
 
