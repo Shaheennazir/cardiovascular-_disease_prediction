@@ -47,6 +47,8 @@ class ECGPredictionService:
             
             # Read the ECG record using wfdb
             # For local files, we pass the full file path without extension
+            logger.info(f"🧩 DEBUG: file_path received -> {file_path}")
+            logger.info(f"🧩 DEBUG: absolute path -> {os.path.abspath(file_path)}")
             base_path = os.path.splitext(file_path)[0]
             logger.debug("Base path for wfdb", base_path=base_path)
             record = wfdb.rdrecord(base_path)

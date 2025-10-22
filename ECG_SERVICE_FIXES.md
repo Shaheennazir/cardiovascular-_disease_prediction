@@ -50,10 +50,12 @@ record = wfdb.rdrecord(base_path)
 - Fixed `preprocess_ecg_file()` method to correctly handle file paths
 - Changed variable name from `file_path_no_ext` to `base_path` for clarity
 - Ensured the full path is passed to `wfdb.rdrecord()`
+- Added debug logging to show file paths before reading
 
 ### 2. Visualization Service (`backend/app/services/visualization_service.py`)
 - Fixed `load_ecg_signal()` method with the same correction
 - Applied identical fix to maintain consistency
+- Added debug logging to show file paths before reading
 
 ## How the Fix Works
 
