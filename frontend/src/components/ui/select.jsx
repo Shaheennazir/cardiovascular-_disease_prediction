@@ -1,6 +1,7 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 
-const Select = ({ children, value, onValueChange, required, name, ...props }) => {
+const Select = ({ children, value, onValueChange, required, name, placeholder }) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef(null);
   
@@ -19,35 +20,44 @@ const Select = ({ children, value, onValueChange, required, name, ...props }) =>
   }, []);
   
   // Find the selected item to display its label
-  const selectedItem = React.Children.toArray(children).find(
-    child => child.type === SelectItem && child.props.value === value
-  );
+  let selectedLabel = placeholder || 'Select an option';
+  const childrenArray = React.Children.toArray(children);
   
-  const selectedLabel = selectedItem ? selectedItem.props.children : '';
+  for (let child of childrenArray) {
+    if (child.props && child.props.value === value) {
+      selectedLabel = child.props.children;
+      break;
+    }
+  }
+  
+  const handleToggle = () => {
+    console.log('Toggling dropdown:', !isOpen);
+    setIsOpen(!isOpen);
+  };
   
   return (
     <div ref={selectRef} className="relative">
       {/* Hidden input for form submission */}
-      <input
-        type="hidden"
-        name={name}
-        value={value || ''}
+      <input 
+        type="hidden" 
+        name={name} 
+        value={value || ''} 
         required={required}
       />
       
       <div
         className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggle}
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            setIsOpen(!isOpen);
+            handleToggle();
           }
         }}
       >
-        <span className={selectedLabel ? 'text-foreground' : 'text-muted-foreground'}>
-          {selectedLabel || props.placeholder || 'Select an option'}
+        <span className={value ? 'text-foreground' : 'text-muted-foreground'}>
+          {selectedLabel}
         </span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -64,12 +74,14 @@ const Select = ({ children, value, onValueChange, required, name, ...props }) =>
       </div>
       
       {isOpen && (
-        <div className="relative mt-1 w-full rounded-md border bg-popover p-1 text-popover-foreground shadow-md z-10">
+        <div className="absolute mt-1 w-full rounded-md border bg-popover p-1 text-popover-foreground shadow-md z-50">
           {React.Children.map(children, (child) => {
-            if (React.isValidElement(child) && child.type === SelectItem) {
+            // Check if child is a SelectItem by looking for value prop
+            if (child.type === SelectItem) {
               return React.cloneElement(child, {
-                onSelect: (value) => {
-                  onValueChange && onValueChange(value);
+                onSelect: (val) => {
+                  console.log('Selecting value:', val);
+                  onValueChange(val);
                   setIsOpen(false);
                 },
                 isSelected: child.props.value === value
@@ -85,14 +97,20 @@ const Select = ({ children, value, onValueChange, required, name, ...props }) =>
 
 const SelectItem = ({ value, children, onSelect, isSelected, className, ...props }) => {
   const handleClick = (e) => {
+    e.preventDefault();
     e.stopPropagation();
-    onSelect && onSelect(value);
+    console.log('Item clicked:', value);
+    onSelect(value);
   };
   
   return (
     <div
       className={`relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground ${isSelected ? 'bg-accent text-accent-foreground' : ''} ${className || ''}`}
       onClick={handleClick}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        handleClick(e);
+      }}
       {...props}
     >
       {isSelected && (
@@ -116,18 +134,12 @@ const SelectItem = ({ value, children, onSelect, isSelected, className, ...props
   );
 };
 
-const SelectTrigger = ({ children }) => {
-  return children;
-};
+// Structural components (just for compatibility with the existing API)
+const SelectTrigger = ({ children }) => children;
+const SelectValue = ({ placeholder }) => placeholder;
+const SelectContent = ({ children }) => children;
 
-const SelectValue = ({ placeholder }) => {
-  return placeholder;
-};
-
-const SelectContent = ({ children }) => {
-  return children;
-};
-
+// Attach sub-components
 Select.Trigger = SelectTrigger;
 Select.Value = SelectValue;
 Select.Content = SelectContent;
