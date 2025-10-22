@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
 import { Menu, X, Heart } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Header = ({ isLoggedIn, onLogin, onRegister, onLogout, onGetStarted, isTransparent = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogoutClick = () => {
+    if (onLogout) onLogout();
+    navigate('/');
+  };
 
   const headerClasses = isTransparent
     ? "bg-transparent absolute top-0 left-0 right-0 z-50 border-b-2 border-solid border-[#4a4a4a]"
@@ -14,22 +21,24 @@ const Header = ({ isLoggedIn, onLogin, onRegister, onLogout, onGetStarted, isTra
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <Heart className="h-8 w-8 text-[#f20d80]" />
-            <span className="text-white text-2xl font-extrabold leading-tight tracking-[-0.015em]">CardioPredict</span>
+            <Link to="/" className="flex items-center space-x-2">
+              <Heart className="h-8 w-8 text-[#f20d80]" />
+              <span className="text-white text-2xl font-extrabold leading-tight tracking-[-0.015em]">CardioPredict</span>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a href="#" className="text-[#6a6a6a] hover:text-[#f20d80] transition-colors duration-200 text-base font-bold">Features</a>
-            <a href="#" className="text-[#6a6a6a] hover:text-[#f20d80] transition-colors duration-200 text-base font-bold">How It Works</a>
-            <a href="#" className="text-[#6a6a6a] hover:text-[#f20d80] transition-colors duration-200 text-base font-bold">Value Proposition</a>
+            <Link to="/" className="text-[#6a6a6a] hover:text-[#f20d80] transition-colors duration-200 text-base font-bold">Features</Link>
+            <Link to="/" className="text-[#6a6a6a] hover:text-[#f20d80] transition-colors duration-200 text-base font-bold">How It Works</Link>
+            <Link to="/" className="text-[#6a6a6a] hover:text-[#f20d80] transition-colors duration-200 text-base font-bold">Value Proposition</Link>
           </nav>
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             {isLoggedIn ? (
               <button
-                onClick={onLogout}
+                onClick={handleLogoutClick}
                 className="flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-14 px-8 bg-[#f20d80] text-white text-lg font-extrabold leading-normal tracking-[0.015em] hover:bg-[#f20d80]/80 transition-colors w-fit"
               >
                 <span className="truncate">Logout</span>
@@ -37,7 +46,7 @@ const Header = ({ isLoggedIn, onLogin, onRegister, onLogout, onGetStarted, isTra
             ) : (
               <>
                 <button
-                  onClick={onGetStarted}
+                  onClick={onGetStarted || (() => navigate('/'))}
                   className="flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-14 px-8 bg-[#f20d80] text-white text-lg font-extrabold leading-normal tracking-[0.015em] hover:bg-[#f20d80]/80 transition-colors w-fit"
                 >
                   <span className="truncate">Get Started</span>
@@ -59,13 +68,16 @@ const Header = ({ isLoggedIn, onLogin, onRegister, onLogout, onGetStarted, isTra
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-[#4a4a4a] animate-fade-in-down bg-[#1a1a1a]">
             <div className="flex flex-col space-y-4">
-              <a href="#" className="text-[#6a6a6a] hover:text-[#f20d80] transition-colors duration-200">Features</a>
-              <a href="#" className="text-[#6a6a6a] hover:text-[#f20d80] transition-colors duration-200">How It Works</a>
-              <a href="#" className="text-[#6a6a6a] hover:text-[#f20d80] transition-colors duration-200">Value Proposition</a>
+              <Link to="/" className="text-[#6a6a6a] hover:text-[#f20d80] transition-colors duration-200" onClick={() => setIsMenuOpen(false)}>Features</Link>
+              <Link to="/" className="text-[#6a6a6a] hover:text-[#f20d80] transition-colors duration-200" onClick={() => setIsMenuOpen(false)}>How It Works</Link>
+              <Link to="/" className="text-[#6a6a6a] hover:text-[#f20d80] transition-colors duration-200" onClick={() => setIsMenuOpen(false)}>Value Proposition</Link>
               
               {isLoggedIn ? (
                 <button
-                  onClick={onLogout}
+                  onClick={() => {
+                    handleLogoutClick();
+                    setIsMenuOpen(false);
+                  }}
                   className="flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-14 px-8 bg-[#f20d80] text-white text-lg font-extrabold leading-normal tracking-[0.015em] hover:bg-[#f20d80]/80 transition-colors w-fit"
                 >
                   <span className="truncate">Logout</span>
@@ -73,7 +85,11 @@ const Header = ({ isLoggedIn, onLogin, onRegister, onLogout, onGetStarted, isTra
               ) : (
                 <div className="flex flex-col space-y-2 pt-2">
                   <button
-                    onClick={onGetStarted || onRegister}
+                    onClick={() => {
+                      if (onGetStarted) onGetStarted();
+                      else navigate('/');
+                      setIsMenuOpen(false);
+                    }}
                     className="flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-14 px-8 bg-[#f20d80] text-white text-lg font-extrabold leading-normal tracking-[0.015em] hover:bg-[#f20d80]/80 transition-colors w-fit"
                   >
                     <span className="truncate">Get Started</span>

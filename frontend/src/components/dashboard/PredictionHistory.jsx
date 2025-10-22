@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Heart, Activity, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import apiService from '../../api';
 
 const PredictionHistory = () => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchHistory();
@@ -113,7 +115,10 @@ const PredictionHistory = () => {
             <p className="text-[#6a6a6a] text-lg font-normal mb-6">
               Your prediction history will appear here once you've made some predictions.
             </p>
-            <button className="flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-14 px-8 bg-[#f20d80] text-white text-lg font-extrabold leading-normal tracking-[0.015em] hover:bg-[#f20d80]/80 transition-colors w-fit mx-auto">
+            <button 
+              onClick={() => navigate('/dashboard/tabular')}
+              className="flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-14 px-8 bg-[#f20d80] text-white text-lg font-extrabold leading-normal tracking-[0.015em] hover:bg-[#f20d80]/80 transition-colors w-fit mx-auto"
+            >
               <span className="truncate">Create your first prediction</span>
             </button>
           </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { ToastProvider } from './components/ui/ToastProvider';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Header from './components/layout/Header';
 import LandingPage from './components/layout/LandingPage';
 import DashboardLayout from './components/dashboard/DashboardLayout';
@@ -18,7 +19,6 @@ function App() {
   const [email, setEmail] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
   const [error, setError] = useState('');
-  const [activeView, setActiveView] = useState('dashboard'); // dashboard, tabular, ecg, history
 
   useEffect(() => {
     // Check if user is already logged in
@@ -60,7 +60,6 @@ function App() {
     setUsername('');
     setPassword('');
     setEmail('');
-    setActiveView('dashboard');
   };
 
   const handleShowLogin = () => {
@@ -78,37 +77,6 @@ function App() {
     setShowLogin(true);
   };
 
-  const renderAuthenticatedView = () => {
-    switch (activeView) {
-      case 'tabular':
-        return <TabularModelEnhanced />;
-      case 'ecg':
-        return <EcgModelEnhanced />;
-      case 'history':
-        return <PredictionHistory />;
-      default:
-        return <DashboardHome />;
-    }
-  };
-
-  if (!isLoggedIn && !showLogin) {
-    return (
-      <ToastProvider>
-        {/* The new LandingPage has its own dark background and header */}
-        <div>
-          <Header
-            isLoggedIn={false}
-            onLogin={handleShowLogin}
-            onRegister={handleShowRegister}
-            onGetStarted={handleGetStarted}
-            isTransparent={true}
-          />
-          <LandingPage onGetStarted={handleGetStarted} />
-        </div>
-      </ToastProvider>
-    );
-  }
-
   if (!isLoggedIn && showLogin) {
     return (
       <ToastProvider>
@@ -117,6 +85,9 @@ function App() {
             isLoggedIn={false}
             onLogin={handleShowLogin}
             onRegister={handleShowRegister}
+            onLogout={handleLogout}
+            onGetStarted={handleGetStarted}
+            isTransparent={false}
           />
           <main className="container py-8">
             <div className="mx-auto max-w-md">
@@ -230,15 +201,6 @@ function App() {
                     </p>
                   </form>
                 )}
-                
-                <div className="mt-8 text-center">
-                  <button
-                    onClick={() => setShowLogin(false)}
-                    className="text-[#6a6a6a] text-base font-normal hover:text-[#f20d80] hover:underline"
-                  >
-                    ← Back to Home
-                  </button>
-                </div>
               </div>
             </div>
           </main>
@@ -249,54 +211,77 @@ function App() {
 
   return (
     <ToastProvider>
-      <DashboardLayout onLogout={handleLogout}>
-        <div className="mb-6 flex flex-wrap gap-4">
-          <button
-            onClick={() => setActiveView('dashboard')}
-            className={`flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-12 px-6 text-base font-extrabold leading-normal tracking-[0.015em] transition-colors w-fit ${
-              activeView === 'dashboard'
-                ? 'bg-[#f20d80] text-white'
-                : 'bg-[#2a2a2a] text-[#6a6a6a] hover:bg-[#4a4a4a] border-2 border-solid border-[#4a4a4a]'
-            }`}
-          >
-            <span className="truncate">Dashboard</span>
-          </button>
-          <button
-            onClick={() => setActiveView('tabular')}
-            className={`flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-12 px-6 text-base font-extrabold leading-normal tracking-[0.015em] transition-colors w-fit ${
-              activeView === 'tabular'
-                ? 'bg-[#f20d80] text-white'
-                : 'bg-[#2a2a2a] text-[#6a6a6a] hover:bg-[#4a4a4a] border-2 border-solid border-[#4a4a4a]'
-            }`}
-          >
-            <span className="truncate">Tabular Prediction</span>
-          </button>
-          <button
-            onClick={() => setActiveView('ecg')}
-            className={`flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-12 px-6 text-base font-extrabold leading-normal tracking-[0.015em] transition-colors w-fit ${
-              activeView === 'ecg'
-                ? 'bg-[#f20d80] text-white'
-                : 'bg-[#2a2a2a] text-[#6a6a6a] hover:bg-[#4a4a4a] border-2 border-solid border-[#4a4a4a]'
-            }`}
-          >
-            <span className="truncate">ECG Analysis</span>
-          </button>
-          <button
-            onClick={() => setActiveView('history')}
-            className={`flex min-w-[120px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-[3rem] h-12 px-6 text-base font-extrabold leading-normal tracking-[0.015em] transition-colors w-fit ${
-              activeView === 'history'
-                ? 'bg-[#f20d80] text-white'
-                : 'bg-[#2a2a2a] text-[#6a6a6a] hover:bg-[#4a4a4a] border-2 border-solid border-[#4a4a4a]'
-            }`}
-          >
-            <span className="truncate">Prediction History</span>
-          </button>
-        </div>
-        
-        {renderAuthenticatedView()}
-      </DashboardLayout>
+      <Router>
+        <AppRoutes 
+          isLoggedIn={isLoggedIn}
+          setIsLoggedIn={setIsLoggedIn}
+          handleLogout={handleLogout}
+          handleShowLogin={handleShowLogin}
+          handleShowRegister={handleShowRegister}
+          handleGetStarted={handleGetStarted}
+        />
+      </Router>
     </ToastProvider>
   );
 }
+
+const AppRoutes = ({ isLoggedIn, setIsLoggedIn, handleLogout, handleShowLogin, handleShowRegister, handleGetStarted }) => {
+  const navigate = useNavigate();
+
+  const handleLogoutClick = () => {
+    handleLogout();
+    navigate('/');
+  };
+
+  if (!isLoggedIn) {
+    return (
+      <Routes>
+        <Route path="/" element={
+          <>
+            <Header
+              isLoggedIn={false}
+              onLogin={handleShowLogin}
+              onRegister={handleShowRegister}
+              onLogout={handleLogout}
+              onGetStarted={handleGetStarted}
+              isTransparent={true}
+            />
+            <LandingPage onGetStarted={handleGetStarted} />
+          </>
+        } />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    );
+  }
+
+  return (
+    <Routes>
+      <Route path="/" element={
+        <>
+          <Header
+            isLoggedIn={true}
+            onLogin={handleShowLogin}
+            onRegister={handleShowRegister}
+            onLogout={handleLogoutClick}
+            onGetStarted={handleGetStarted}
+            isTransparent={false}
+          />
+          <LandingPage onGetStarted={handleGetStarted} />
+        </>
+      } />
+      <Route path="/dashboard/*" element={
+        <DashboardLayout onLogout={handleLogoutClick}>
+          <Routes>
+            <Route index element={<DashboardHome />} />
+            <Route path="tabular" element={<TabularModelEnhanced />} />
+            <Route path="ecg" element={<EcgModelEnhanced />} />
+            <Route path="history" element={<PredictionHistory />} />
+          </Routes>
+        </DashboardLayout>
+      } />
+      <Route path="*" element={<Navigate to="/dashboard" />} />
+    </Routes>
+  );
+};
 
 export default App;
