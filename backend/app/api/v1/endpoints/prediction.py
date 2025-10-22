@@ -148,7 +148,7 @@ async def predict_ecg(
         logger.info("Visualization generated",
                      user_id=current_user.id,
                      viz_path=viz_path)
-        visualization_url = f"/api/v1/ecg/{uuid.uuid4()}/visualization"  # Placeholder URL
+        visualization_url = f"/api/v1/ecg/{prediction_id}/visualization"
         
         # Save prediction to database
         prediction_id = str(uuid.uuid4())

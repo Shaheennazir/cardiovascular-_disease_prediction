@@ -109,7 +109,7 @@ class ApiService {
   }
 
   async getPredictionDetail(predictionId) {
-    return this.request(`/history/${predictionId}`);
+    return this.request(`/history/${predictionId}/`);
   }
 }
 
