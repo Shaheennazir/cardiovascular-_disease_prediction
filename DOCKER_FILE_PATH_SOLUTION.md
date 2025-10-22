@@ -56,6 +56,7 @@ RUN chmod -R 777 uploads db
 2. **Centralized Directory Management**: Directory paths are now managed centrally in `file_utils.py`
 3. **Improved Logging**: Added debug logging to track file paths through the system
 4. **Proper Permissions**: Docker container now has proper permissions for file operations
+5. **Docker-Safe WFDB Integration**: WFDB now receives properly normalized absolute paths that work consistently in Docker environments
 
 ## Verification Steps
 

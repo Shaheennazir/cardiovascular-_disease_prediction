@@ -49,8 +49,15 @@ class ECGPredictionService:
             # For local files, we pass the full file path without extension
             logger.info(f"🧩 DEBUG: file_path received -> {file_path}")
             logger.info(f"🧩 DEBUG: absolute path -> {os.path.abspath(file_path)}")
-            base_path = os.path.splitext(file_path)[0]
+            base_path = os.path.splitext(os.path.abspath(file_path))[0]
             logger.debug("Base path for wfdb", base_path=base_path)
+            
+            # Safety check to ensure files exist before calling wfdb
+            if not os.path.exists(base_path + ".dat"):
+                raise FileNotFoundError(f"ECG data file not found: {base_path}.dat")
+            if not os.path.exists(base_path + ".hea"):
+                raise FileNotFoundError(f"ECG header file not found: {base_path}.hea")
+                
             record = wfdb.rdrecord(base_path)
             
             # Extract signal data

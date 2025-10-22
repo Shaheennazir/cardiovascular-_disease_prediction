@@ -39,8 +39,13 @@ record = wfdb.rdrecord(file_path_no_ext)
 
 ### After (Fixed):
 ```python
-# This preserves the full path
-base_path = os.path.splitext(file_path)[0]
+# This ensures the path is absolute and normalized for Docker environments
+base_path = os.path.splitext(os.path.abspath(file_path))[0]
+# Optional safety check
+if not os.path.exists(base_path + ".dat"):
+    raise FileNotFoundError(f"ECG data file not found: {base_path}.dat")
+if not os.path.exists(base_path + ".hea"):
+    raise FileNotFoundError(f"ECG header file not found: {base_path}.hea")
 record = wfdb.rdrecord(base_path)
 ```
 
