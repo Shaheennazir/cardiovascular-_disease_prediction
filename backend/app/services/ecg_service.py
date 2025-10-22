@@ -47,13 +47,12 @@ class ECGPredictionService:
                 raise FileNotFoundError(f"ECG header file not found: {header_path}. Please upload both .dat and .hea files.")
             
             # Read the ECG record using wfdb
-            # Extract the base name without extension and path
-            base_name = os.path.splitext(os.path.basename(file_path))[0]
-            # Use the full file path directly with wfdb
-            # Convert to absolute path to ensure correct handling in Docker
-            abs_file_path = get_absolute_file_path(file_path)
-            logger.debug("Absolute file path for wfdb", abs_file_path=abs_file_path)
-            record = wfdb.rdrecord(abs_file_path)
+            # For wfdb.rdrecord, we need to provide the directory and record name separately
+            # Get the directory and filename without extension
+            directory = os.path.dirname(file_path)
+            record_name = os.path.basename(get_absolute_file_path(file_path))
+            logger.debug("Directory and record name for wfdb", directory=directory, record_name=record_name)
+            record = wfdb.rdrecord(record_name, pn_dir=directory)
             
             # Extract signal data
             signal = record.p_signal
