@@ -1,16 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { GlassmorphicCard, GlassmorphicCardContent, GlassmorphicCardHeader, GlassmorphicCardTitle } from '../../components/ui/glassmorphic-card';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { TactileButton } from '../../components/ui/tactile-button';
-import { StatusButton } from '../../components/ui/status-button';
-import {
-  TactileTable,
-  TactileTableHeader,
-  TactileTableBody,
-  TactileTableRow,
-  TactileTableHead,
-  TactileTableCell
-} from '../../components/ui/tactile-table';
-import { Clock } from 'lucide-react';
+import { Heart, Activity, Clock } from 'lucide-react';
 import apiService from '../../api';
 
 const PredictionHistory = () => {
@@ -35,34 +26,43 @@ const PredictionHistory = () => {
     }
   };
 
-  const getResultStatus = (result) => {
-    if (result.includes('High') || result.includes('Arrhythmia') || result.includes('Detected')) {
-      return 'high';
-    } else if (result.includes('Medium') || result.includes('Moderate')) {
-      return 'medium';
+  const getTypeIcon = (type) => {
+    switch (type) {
+      case 'ecg':
+        return <Activity className="h-4 w-4" />;
+      case 'tabular':
+      default:
+        return <Heart className="h-4 w-4" />;
     }
-    return 'low';
   };
 
-  const getResultLabel = (result) => {
-    if (result.includes('High') || result.includes('Arrhythmia') || result.includes('Detected')) {
-      return 'High';
-    } else if (result.includes('Medium') || result.includes('Moderate')) {
-      return 'Medium';
+  const getTypeColor = (type) => {
+    switch (type) {
+      case 'ecg':
+        return 'bg-blue-500/10 text-blue-500';
+      case 'tabular':
+      default:
+        return 'bg-red-500/10 text-red-500';
     }
-    return 'Low';
+  };
+
+  const getResultColor = (result) => {
+    if (result.includes('High') || result.includes('Arrhythmia') || result.includes('Detected')) {
+      return 'text-destructive';
+    }
+    return 'text-green-500';
   };
 
   if (loading) {
     return (
-      <GlassmorphicCard>
-        <GlassmorphicCardHeader>
-          <GlassmorphicCardTitle>Prediction History</GlassmorphicCardTitle>
-        </GlassmorphicCardHeader>
-        <GlassmorphicCardContent>
+      <Card className="glassmorphic">
+        <CardHeader>
+          <CardTitle className="text-zen-dark-blue dark:text-zen-light-blue">Prediction History</CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="flex items-center justify-between p-4 rounded-lg animate-pulse glassmorphic">
+              <div key={i} className="flex items-center justify-between p-4 rounded-lg glassmorphic animate-pulse">
                 <div className="flex items-center space-x-4">
                   <div className="h-10 w-10 rounded-full bg-muted"></div>
                   <div className="space-y-2">
@@ -74,86 +74,82 @@ const PredictionHistory = () => {
               </div>
             ))}
           </div>
-        </GlassmorphicCardContent>
-      </GlassmorphicCard>
+        </CardContent>
+      </Card>
     );
   }
 
   if (error) {
     return (
-      <GlassmorphicCard>
-        <GlassmorphicCardHeader>
-          <GlassmorphicCardTitle>Prediction History</GlassmorphicCardTitle>
-        </GlassmorphicCardHeader>
-        <GlassmorphicCardContent>
-          <div className="p-4 rounded-lg bg-destructive/10 glassmorphic">
+      <Card className="glassmorphic">
+        <CardHeader>
+          <CardTitle className="text-zen-dark-blue dark:text-zen-light-blue">Prediction History</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="p-4 rounded-lg glassmorphic">
             <p className="text-destructive">{error}</p>
-            <TactileButton onClick={fetchHistory} variant="secondary" className="mt-2">
+            <TactileButton variant="secondary" onClick={fetchHistory} className="mt-2">
               Retry
             </TactileButton>
           </div>
-        </GlassmorphicCardContent>
-      </GlassmorphicCard>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <GlassmorphicCard>
-      <GlassmorphicCardHeader>
-        <GlassmorphicCardTitle>Prediction History</GlassmorphicCardTitle>
-      </GlassmorphicCardHeader>
-      <GlassmorphicCardContent>
+    <Card className="glassmorphic">
+      <CardHeader>
+        <CardTitle className="text-zen-dark-blue dark:text-zen-light-blue">Prediction History</CardTitle>
+      </CardHeader>
+      <CardContent>
         {history.length === 0 ? (
           <div className="text-center py-8">
-            <Clock className="h-12 w-12 text-zen-dark-blue/60 dark:text-zen-light-blue/60 mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2 text-zen-dark-blue dark:text-zen-light-blue">No predictions yet</h3>
-            <p className="text-zen-dark-blue/80 dark:text-zen-light-blue/80 mb-4">
+            <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium mb-2">No predictions yet</h3>
+            <p className="text-muted-foreground mb-4">
               Your prediction history will appear here once you've made some predictions.
             </p>
-            <TactileButton>New Prediction</TactileButton>
+            <TactileButton>Create your first prediction</TactileButton>
           </div>
         ) : (
-          <div className="@container">
-            <TactileTable>
-              <TactileTableHeader>
-                <TactileTableRow>
-                  <TactileTableHead className="w-[400px]">Patient ID</TactileTableHead>
-                  <TactileTableHead className="w-[400px]">Prediction Date</TactileTableHead>
-                  <TactileTableHead className="w-[400px]">Risk Score</TactileTableHead>
-                  <TactileTableHead className="w-60">Status</TactileTableHead>
-                </TactileTableRow>
-              </TactileTableHeader>
-              <TactileTableBody>
-                {history.map((prediction) => (
-                  <TactileTableRow key={prediction.id}>
-                    <TactileTableCell className="w-[400px]">
-                      #{prediction.id.toString().padStart(5, '0')}
-                    </TactileTableCell>
-                    <TactileTableCell className="w-[400px]">
-                      {new Date(prediction.created_at).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
-                    </TactileTableCell>
-                    <TactileTableCell className="w-[400px]">
-                      {typeof prediction.confidence === 'number'
-                        ? Math.round(prediction.confidence * 100)
-                        : 'N/A'}
-                    </TactileTableCell>
-                    <TactileTableCell className="w-60">
-                      <StatusButton variant={getResultStatus(prediction.result)}>
-                        {getResultLabel(prediction.result)}
-                      </StatusButton>
-                    </TactileTableCell>
-                  </TactileTableRow>
-                ))}
-              </TactileTableBody>
-            </TactileTable>
+          <div className="space-y-4">
+            {history.map((prediction) => (
+              <div
+                key={prediction.id}
+                className="flex items-center justify-between p-4 rounded-lg glassmorphic table-row-tactile"
+              >
+                <div className="flex items-center space-x-4">
+                  <div className={`p-2 rounded-full ${getTypeColor(prediction.type)}`}>
+                    {getTypeIcon(prediction.type)}
+                  </div>
+                  <div>
+                    <h3 className="font-medium capitalize text-zen-dark-blue dark:text-zen-light-blue">{prediction.type} Prediction</h3>
+                    <p className={`text-sm ${getResultColor(prediction.result)}`}>
+                      {prediction.result}
+                    </p>
+                    <p className="text-xs text-zen-dark-blue/60 dark:text-zen-light-blue/60">
+                      {new Date(prediction.created_at).toLocaleDateString()} at{' '}
+                      {new Date(prediction.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-zen-dark-blue dark:text-zen-light-blue">
+                    {typeof prediction.confidence === 'number'
+                      ? `${(prediction.confidence * 100).toFixed(0)}% confidence`
+                      : 'N/A'}
+                  </p>
+                  <TactileButton variant="outline" size="sm" className="mt-1">
+                    View Details
+                  </TactileButton>
+                </div>
+              </div>
+            ))}
           </div>
         )}
-      </GlassmorphicCardContent>
-    </GlassmorphicCard>
+      </CardContent>
+    </Card>
   );
 };
 
