@@ -80,3 +80,178 @@
 body {
   animation-duration: 0.3s;
 }
+
+/* Glassmorphic effect */
+.glassmorphic {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+}
+
+.dark .glassmorphic {
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.05));
+}
+
+/* Tactile button styles */
+.btn-tactile-primary {
+  background-color: var(--tw-colors-tactile-primary);
+  color: var(--tw-colors-tactile-text-light);
+  border: 2px solid var(--tw-colors-tactile-primary);
+  box-shadow: var(--tw-shadow-tactile-dark);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-tactile-primary:hover {
+  background-color: var(--tw-colors-tactile-accent);
+  border-color: var(--tw-colors-tactile-accent);
+  box-shadow: var(--tw-shadow-lg);
+  transform: translateY(-1px);
+}
+
+.btn-tactile-primary:active {
+  transform: translateY(1px);
+  box-shadow: var(--tw-shadow-sm);
+}
+
+.btn-tactile-secondary {
+  background-color: var(--tw-colors-tactile-secondary);
+  color: var(--tw-colors-tactile-text-dark);
+  border: 2px solid var(--tw-colors-tactile-secondary);
+  box-shadow: var(--tw-shadow-tactile-light);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-tactile-secondary:hover {
+  background-color: var(--tw-colors-tactile-accent);
+  color: var(--tw-colors-tactile-text-light);
+  border-color: var(--tw-colors-tactile-accent);
+  box-shadow: var(--tw-shadow-lg);
+  transform: translateY(-1px);
+}
+
+.btn-tactile-secondary:active {
+  transform: translateY(1px);
+  box-shadow: var(--tw-shadow-sm);
+}
+
+.btn-tactile-outline {
+  background-color: transparent;
+  color: var(--tw-colors-tactile-primary);
+  border: 2px solid var(--tw-colors-tactile-primary);
+  box-shadow: var(--tw-shadow-tactile-light);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-tactile-outline:hover {
+  background-color: var(--tw-colors-tactile-primary);
+  color: var(--tw-colors-tactile-text-light);
+  box-shadow: var(--tw-shadow-tactile-dark);
+  transform: translateY(-1px);
+}
+
+.btn-tactile-outline:active {
+  transform: translateY(1px);
+  box-shadow: var(--tw-shadow-sm);
+}
+
+.status-btn-tactile {
+  border: 1px solid;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.2s ease-in-out;
+}
+
+.status-btn-tactile:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.status-btn-tactile:active {
+  transform: scale(0.98);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.dark .btn-tactile-primary {
+  background-color: var(--tw-colors-tactile-accent);
+  color: var(--tw-colors-tactile-text-dark);
+  border-color: var(--tw-colors-tactile-accent);
+  box-shadow: var(--tw-shadow-tactile-light);
+}
+
+.dark .btn-tactile-primary:hover {
+  background-color: var(--tw-colors-tactile-primary);
+  color: var(--tw-colors-tactile-text-light);
+  border-color: var(--tw-colors-tactile-primary);
+  box-shadow: var(--tw-shadow-lg);
+}
+
+.dark .btn-tactile-primary:active {
+  transform: translateY(1px);
+  box-shadow: var(--tw-shadow-sm);
+}
+
+.dark .btn-tactile-secondary {
+  background-color: var(--tw-colors-tactile-primary);
+  color: var(--tw-colors-tactile-text-light);
+  border-color: var(--tw-colors-tactile-primary);
+  box-shadow: var(--tw-shadow-tactile-dark);
+}
+
+.dark .btn-tactile-secondary:hover {
+  background-color: var(--tw-colors-tactile-accent);
+  color: var(--tw-colors-tactile-text-dark);
+  border-color: var(--tw-colors-tactile-accent);
+  box-shadow: var(--tw-shadow-lg);
+}
+
+.dark .btn-tactile-secondary:active {
+  transform: translateY(1px);
+  box-shadow: var(--tw-shadow-sm);
+}
+
+.dark .btn-tactile-outline {
+  color: var(--tw-colors-tactile-accent);
+  border-color: var(--tw-colors-tactile-accent);
+  box-shadow: var(--tw-shadow-tactile-light);
+}
+
+.dark .btn-tactile-outline:hover {
+  background-color: var(--tw-colors-tactile-accent);
+  color: var(--tw-colors-tactile-text-dark);
+  box-shadow: var(--tw-shadow-tactile-dark);
+}
+
+.dark .btn-tactile-outline:active {
+  transform: translateY(1px);
+  box-shadow: var(--tw-shadow-sm);
+}
+
+.table-row-tactile {
+  transition: all 0.2s ease-in-out;
+}
+
+.table-row-tactile:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dark .table-row-tactile:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.table-row-tactile:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dark .table-row-tactile:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}

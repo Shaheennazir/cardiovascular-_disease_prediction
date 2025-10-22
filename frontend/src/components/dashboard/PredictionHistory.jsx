@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
+import { GlassmorphicCard, GlassmorphicCardContent, GlassmorphicCardHeader, GlassmorphicCardTitle } from '../../components/ui/glassmorphic-card';
+import { TactileButton } from '../../components/ui/tactile-button';
+import { StatusButton } from '../../components/ui/status-button';
+import {
+  TactileTable,
+  TactileTableHeader,
+  TactileTableBody,
+  TactileTableRow,
+  TactileTableHead,
+  TactileTableCell
+} from '../../components/ui/tactile-table';
 import { Heart, Activity, Clock } from 'lucide-react';
 import apiService from '../../api';
 
@@ -46,23 +55,34 @@ const PredictionHistory = () => {
     }
   };
 
-  const getResultColor = (result) => {
+  const getResultStatus = (result) => {
     if (result.includes('High') || result.includes('Arrhythmia') || result.includes('Detected')) {
-      return 'text-destructive';
+      return 'high';
+    } else if (result.includes('Medium') || result.includes('Moderate')) {
+      return 'medium';
     }
-    return 'text-green-500';
+    return 'low';
+  };
+
+  const getResultLabel = (result) => {
+    if (result.includes('High') || result.includes('Arrhythmia') || result.includes('Detected')) {
+      return 'High';
+    } else if (result.includes('Medium') || result.includes('Moderate')) {
+      return 'Medium';
+    }
+    return 'Low';
   };
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Prediction History</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <GlassmorphicCard>
+        <GlassmorphicCardHeader>
+          <GlassmorphicCardTitle>Prediction History</GlassmorphicCardTitle>
+        </GlassmorphicCardHeader>
+        <GlassmorphicCardContent>
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="flex items-center justify-between p-4 border rounded-lg animate-pulse">
+              <div key={i} className="flex items-center justify-between p-4 rounded-lg animate-pulse glassmorphic">
                 <div className="flex items-center space-x-4">
                   <div className="h-10 w-10 rounded-full bg-muted"></div>
                   <div className="space-y-2">
@@ -74,82 +94,86 @@ const PredictionHistory = () => {
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </GlassmorphicCardContent>
+      </GlassmorphicCard>
     );
   }
 
   if (error) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Prediction History</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="p-4 bg-destructive/10 rounded-lg">
+      <GlassmorphicCard>
+        <GlassmorphicCardHeader>
+          <GlassmorphicCardTitle>Prediction History</GlassmorphicCardTitle>
+        </GlassmorphicCardHeader>
+        <GlassmorphicCardContent>
+          <div className="p-4 rounded-lg bg-destructive/10 glassmorphic">
             <p className="text-destructive">{error}</p>
-            <Button onClick={fetchHistory} variant="secondary" className="mt-2">
+            <TactileButton onClick={fetchHistory} variant="secondary" className="mt-2">
               Retry
-            </Button>
+            </TactileButton>
           </div>
-        </CardContent>
-      </Card>
+        </GlassmorphicCardContent>
+      </GlassmorphicCard>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Prediction History</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <GlassmorphicCard>
+      <GlassmorphicCardHeader>
+        <GlassmorphicCardTitle>Prediction History</GlassmorphicCardTitle>
+      </GlassmorphicCardHeader>
+      <GlassmorphicCardContent>
         {history.length === 0 ? (
           <div className="text-center py-8">
-            <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">No predictions yet</h3>
-            <p className="text-muted-foreground mb-4">
+            <Clock className="h-12 w-12 text-zen-dark-blue/60 dark:text-zen-light-blue/60 mx-auto mb-4" />
+            <h3 className="text-lg font-medium mb-2 text-zen-dark-blue dark:text-zen-light-blue">No predictions yet</h3>
+            <p className="text-zen-dark-blue/80 dark:text-zen-light-blue/80 mb-4">
               Your prediction history will appear here once you've made some predictions.
             </p>
-            <Button>Create your first prediction</Button>
+            <TactileButton>New Prediction</TactileButton>
           </div>
         ) : (
-          <div className="space-y-4">
-            {history.map((prediction) => (
-              <div 
-                key={prediction.id} 
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors duration-200"
-              >
-                <div className="flex items-center space-x-4">
-                  <div className={`p-2 rounded-full ${getTypeColor(prediction.type)}`}>
-                    {getTypeIcon(prediction.type)}
-                  </div>
-                  <div>
-                    <h3 className="font-medium capitalize">{prediction.type} Prediction</h3>
-                    <p className={`text-sm ${getResultColor(prediction.result)}`}>
-                      {prediction.result}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(prediction.created_at).toLocaleDateString()} at{' '}
-                      {new Date(prediction.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium">
-                    {typeof prediction.confidence === 'number' 
-                      ? `${(prediction.confidence * 100).toFixed(0)}% confidence` 
-                      : 'N/A'}
-                  </p>
-                  <Button variant="ghost" size="sm" className="mt-1">
-                    View Details
-                  </Button>
-                </div>
-              </div>
-            ))}
+          <div className="@container">
+            <TactileTable>
+              <TactileTableHeader>
+                <TactileTableRow>
+                  <TactileTableHead className="w-[400px]">Patient ID</TactileTableHead>
+                  <TactileTableHead className="w-[400px]">Prediction Date</TactileTableHead>
+                  <TactileTableHead className="w-[400px]">Risk Score</TactileTableHead>
+                  <TactileTableHead className="w-60">Status</TactileTableHead>
+                </TactileTableRow>
+              </TactileTableHeader>
+              <TactileTableBody>
+                {history.map((prediction) => (
+                  <TactileTableRow key={prediction.id}>
+                    <TactileTableCell className="w-[400px]">
+                      #{prediction.id.toString().padStart(5, '0')}
+                    </TactileTableCell>
+                    <TactileTableCell className="w-[400px]">
+                      {new Date(prediction.created_at).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </TactileTableCell>
+                    <TactileTableCell className="w-[400px]">
+                      {typeof prediction.confidence === 'number'
+                        ? Math.round(prediction.confidence * 100)
+                        : 'N/A'}
+                    </TactileTableCell>
+                    <TactileTableCell className="w-60">
+                      <StatusButton variant={getResultStatus(prediction.result)}>
+                        {getResultLabel(prediction.result)}
+                      </StatusButton>
+                    </TactileTableCell>
+                  </TactileTableRow>
+                ))}
+              </TactileTableBody>
+            </TactileTable>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </GlassmorphicCardContent>
+    </GlassmorphicCard>
   );
 };
 

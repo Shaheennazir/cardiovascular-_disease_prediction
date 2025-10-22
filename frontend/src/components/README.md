@@ -24,7 +24,11 @@ src/
 │   │   ├── Select.jsx
 │   │   ├── LoadingSpinner.jsx
 │   │   ├── Skeleton.jsx
-│   │   └── ToastProvider.jsx
+│   │   ├── ToastProvider.jsx
+│   │   ├── TactileButton.jsx
+│   │   ├── GlassmorphicCard.jsx
+│   │   ├── TactileTable.jsx
+│   │   └── StatusButton.jsx
 │   └── README.md (this file)
 ├── App.js
 └── api.js
@@ -33,6 +37,86 @@ src/
 ## UI Components (`ui/`)
 
 Reusable UI components built with Tailwind CSS and following the design system.
+
+### TactileButton
+
+A button component with enhanced tactile feedback and interactive styling.
+
+```jsx
+import { TactileButton } from './ui/TactileButton';
+
+<TactileButton variant="primary" size="lg">Primary Button</TactileButton>
+<TactileButton variant="secondary">Secondary Button</TactileButton>
+<TactileButton variant="outline">Outline Button</TactileButton>
+```
+
+Props:
+- `variant`: primary | secondary | outline
+- `size`: sm | md | lg | xl
+- All other standard button props
+
+### GlassmorphicCard
+
+A card component with glassmorphic effect for a modern, frosted glass appearance.
+
+```jsx
+import { GlassmorphicCard, GlassmorphicCardHeader, GlassmorphicCardTitle, GlassmorphicCardContent } from './ui/GlassmorphicCard';
+
+<GlassmorphicCard>
+  <GlassmorphicCardHeader>
+    <GlassmorphicCardTitle>Card Title</GlassmorphicCardTitle>
+  </GlassmorphicCardHeader>
+  <GlassmorphicCardContent>
+    <p>Card content goes here...</p>
+  </GlassmorphicCardContent>
+</GlassmorphicCard>
+```
+
+### TactileTable
+
+A table component with tactile row interactions and enhanced styling.
+
+```jsx
+import {
+  TactileTable,
+  TactileTableHeader,
+  TactileTableBody,
+  TactileTableRow,
+  TactileTableHead,
+  TactileTableCell
+} from './ui/TactileTable';
+
+<TactileTable>
+  <TactileTableHeader>
+    <TactileTableRow>
+      <TactileTableHead>Column 1</TactileTableHead>
+      <TactileTableHead>Column 2</TactileTableHead>
+    </TactileTableRow>
+  </TactileTableHeader>
+  <TactileTableBody>
+    <TactileTableRow>
+      <TactileTableCell>Data 1</TactileTableCell>
+      <TactileTableCell>Data 2</TactileTableCell>
+    </TactileTableRow>
+  </TactileTableBody>
+</TactileTable>
+```
+
+### StatusButton
+
+A specialized button component for displaying status with color-coded variants.
+
+```jsx
+import { StatusButton } from './ui/StatusButton';
+
+<StatusButton variant="high">High</StatusButton>
+<StatusButton variant="medium">Medium</StatusButton>
+<StatusButton variant="low">Low</StatusButton>
+```
+
+Props:
+- `variant`: high | medium | low
+- All other standard button props
 
 ### Button
 
@@ -229,7 +313,9 @@ The application uses a custom Tailwind CSS theme defined in `tailwind.config.js`
 - Primary: Blue shades (#0ea5e9, #0284c7, etc.)
 - Secondary: Teal shades (#0d9488, #115e59, etc.)
 - Destructive: Red shades (#dc2626, #b91c1c, etc.)
-- Background: Light gray (#f8fafc)
+- Zen Colors: Blue (#A3B7C5), Green (#8BA8A1), Light Blue (#DDE7EE), Dark Blue (#4F626E)
+- Tactile Colors: Primary (#4A6E7F), Secondary (#BFD7ED), Accent (#E87C5E)
+- Background: Light gray (#f8fafc) and dark variant (#231e0f)
 - Foreground: Dark gray (#020817)
 
 All components use these theme variables for consistent styling.
