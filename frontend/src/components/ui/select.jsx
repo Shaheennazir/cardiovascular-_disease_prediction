@@ -1,88 +1,52 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
-const Select = ({ children, value, onValueChange, ...props }) => {
-  // Remove onValueChange from props passed to select element
-  const selectProps = { ...props };
-  delete selectProps.onValueChange;
+const Select = ({ children, value, onValueChange, required, ...props }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectRef = useRef(null);
   
-  return (
-    <select
-      {...selectProps}
-      value={value}
-      onChange={(e) => onValueChange && onValueChange(e.target.value)}
-    >
-      {children}
-    </select>
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  
+  // Find the selected item to display its label
+  const selectedItem = React.Children.toArray(children).find(
+    child => child.type === SelectItem && child.props.value === value
   );
-};
-
-const SelectTrigger = React.forwardRef(({ className, children, ...props }, ref) => {
-  // Simple class name concatenation function
-  const cn = (...classes) => classes.filter(Boolean).join(' ');
+  
+  const selectedLabel = selectedItem ? selectedItem.props.children : '';
   
   return (
-    <div
-      ref={ref}
-      className={cn(
-        'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-        className
-      )}
-      {...props}
-    >
-      {children}
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-4 w-4 opacity-50"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+    <div ref={selectRef} className="relative">
+      <select
+        {...props}
+        value={value}
+        required={required}
+        onChange={(e) => onValueChange && onValueChange(e.target.value)}
+        className="hidden"
       >
-        <polyline points="6 9 12 15 18 9"></polyline>
-      </svg>
-    </div>
-  );
-});
-SelectTrigger.displayName = 'SelectTrigger';
-
-const SelectValue = ({ placeholder }) => {
-  return <span className="text-muted-foreground">{placeholder}</span>;
-};
-
-const SelectContent = ({ children, className }) => {
-  // Simple class name concatenation function
-  const cn = (...classes) => classes.filter(Boolean).join(' ');
-  
-  return (
-    <div
-      className={cn(
-        'relative mt-1 w-full rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
-        className
-      )}
-    >
-      {children}
-    </div>
-  );
-};
-
-const SelectItem = ({ value, children, className, ...props }) => {
-  // Simple class name concatenation function
-  const cn = (...classes) => classes.filter(Boolean).join(' ');
-  
-  return (
-    <div
-      className={cn(
-        'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground',
-        className
-      )}
-      {...props}
-    >
-      <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+        {children}
+      </select>
+      
+      <div
+        className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className={selectedLabel ? 'text-foreground' : 'text-muted-foreground'}>
+          {selectedLabel || props.placeholder || 'Select an option'}
+        </span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4"
+          className={`h-4 w-4 opacity-50 transition-transform ${isOpen ? 'rotate-180' : ''}`}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -90,12 +54,72 @@ const SelectItem = ({ value, children, className, ...props }) => {
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <polyline points="20 6 9 17 4 12"></polyline>
+          <polyline points="6 9 12 15 18 9"></polyline>
         </svg>
-      </span>
+      </div>
+      
+      {isOpen && (
+        <div className="relative mt-1 w-full rounded-md border bg-popover p-1 text-popover-foreground shadow-md z-10">
+          {React.Children.map(children, (child) => {
+            if (React.isValidElement(child) && child.type === SelectItem) {
+              return React.cloneElement(child, {
+                onSelect: (value) => {
+                  onValueChange && onValueChange(value);
+                  setIsOpen(false);
+                },
+                isSelected: child.props.value === value
+              });
+            }
+            return child;
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const SelectItem = ({ value, children, onSelect, isSelected, className, ...props }) => {
+  const handleClick = () => {
+    onSelect && onSelect(value);
+  };
+  
+  return (
+    <div
+      className={`relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground ${isSelected ? 'bg-accent text-accent-foreground' : ''} ${className || ''}`}
+      onClick={handleClick}
+      {...props}
+    >
+      {isSelected && (
+        <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </span>
+      )}
       <span>{children}</span>
     </div>
   );
+};
+
+const SelectTrigger = ({ children }) => {
+  return children;
+};
+
+const SelectValue = ({ placeholder }) => {
+  return placeholder;
+};
+
+const SelectContent = ({ children }) => {
+  return children;
 };
 
 Select.Trigger = SelectTrigger;
