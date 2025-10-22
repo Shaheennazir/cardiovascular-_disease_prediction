@@ -49,7 +49,9 @@ class ECGPredictionService:
             # Extract the base name without extension and path
             base_name = os.path.splitext(os.path.basename(file_path))[0]
             # Use the full file path directly with wfdb
-            record = wfdb.rdrecord(os.path.splitext(file_path)[0])
+            # Convert to absolute path to ensure correct handling in Docker
+            abs_file_path = os.path.abspath(os.path.splitext(file_path)[0])
+            record = wfdb.rdrecord(abs_file_path)
             
             # Extract signal data
             signal = record.p_signal
