@@ -45,11 +45,11 @@ class ECGPredictionService:
                 logger.error("Missing ECG header file", header_path=header_path)
                 raise FileNotFoundError(f"ECG header file not found: {header_path}. Please upload both .dat and .hea files.")
             
-            # Read the ECG record using wfdb
-            # For local files, we pass the full file path without extension
+            # Get the absolute base path (without extension)
             logger.info(f"🧩 DEBUG: file_path received -> {file_path}")
-            logger.info(f"🧩 DEBUG: absolute path -> {os.path.abspath(file_path)}")
-            base_path = os.path.splitext(os.path.abspath(file_path))[0]
+            abs_file_path = os.path.abspath(file_path)
+            logger.info(f"🧩 DEBUG: absolute path -> {abs_file_path}")
+            base_path = os.path.splitext(abs_file_path)[0]
             logger.debug("Base path for wfdb", base_path=base_path)
             
             # Safety check to ensure files exist before calling wfdb
@@ -77,11 +77,9 @@ class ECGPredictionService:
                 logger.warning("Could not rewrite ECG header prefix", error=str(e))
             # --- END FIX HEADER NAME MISMATCH ---
                 
-            # Force WFDB to use the updated header file explicitly
-            record_name = os.path.splitext(os.path.basename(base_path))[0]
-            record = wfdb.rdrecord(
-                os.path.join(os.path.dirname(base_path), record_name)
-            )
+            # ✅ THE FIX: Pass the base_path directly to wfdb.rdrecord
+            # wfdb expects the path WITHOUT extension and will look for .dat and .hea files
+            record = wfdb.rdrecord(base_path)
             
             logger.info(f"✅ Successfully loaded record: {record.__dict__.keys()}")
             
