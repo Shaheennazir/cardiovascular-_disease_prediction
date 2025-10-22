@@ -13,7 +13,7 @@ logger = get_logger(__name__)
 
 try:
     # Initialize database
-    Base.metadata.create_all(bind=engine)
+    init_db()
     logger.info("Database initialized successfully")
 except Exception as e:
     logger.error("Failed to initialize database", error=str(e))
