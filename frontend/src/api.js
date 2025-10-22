@@ -104,7 +104,7 @@ class ApiService {
   // History endpoints
   async getHistory(params = {}) {
     const queryParams = new URLSearchParams(params).toString();
-    const url = `/history${queryParams ? `?${queryParams}` : ''}`;
+    const url = `/history/${queryParams ? `?${queryParams}` : ''}`;
     return this.request(url);
   }
 
