@@ -94,11 +94,13 @@ function App() {
   if (!isLoggedIn && !showLogin) {
     return (
       <ToastProvider>
-        <div className="min-h-screen bg-background">
+        {/* The new LandingPage has its own dark background and header */}
+        <div>
           <Header
             isLoggedIn={false}
             onLogin={handleShowLogin}
             onRegister={handleShowRegister}
+            isTransparent={true}
           />
           <LandingPage onGetStarted={handleGetStarted} />
         </div>
