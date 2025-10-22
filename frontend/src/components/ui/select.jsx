@@ -1,8 +1,16 @@
 import React from 'react';
 
-const Select = ({ children, ...props }) => {
+const Select = ({ children, value, onValueChange, ...props }) => {
+  // Remove onValueChange from props passed to select element
+  const selectProps = { ...props };
+  delete selectProps.onValueChange;
+  
   return (
-    <select {...props}>
+    <select
+      {...selectProps}
+      value={value}
+      onChange={(e) => onValueChange && onValueChange(e.target.value)}
+    >
       {children}
     </select>
   );
