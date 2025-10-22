@@ -13,6 +13,9 @@ from app.schemas.prediction import TabularDataInput, TabularPredictionResult, Ec
 from app.services.tabular_service import tabular_service
 from app.services.ecg_service import ecg_service
 from app.services.visualization_service import visualization_service
+from app.core import get_logger
+
+logger = get_logger(__name__)
 
 router = APIRouter()
 
@@ -23,13 +26,21 @@ async def predict_tabular(
     current_user: User = Depends(get_current_active_user)
 ):
     """Submit patient data for cardiovascular disease prediction"""
+    logger.info("Tabular prediction request received",
+                 user_id=current_user.id,
+                 input_data=input_data.dict())
     try:
         # Make prediction
         prediction_result = tabular_service.predict(input_data.dict())
+        logger.info("Tabular prediction completed",
+                     user_id=current_user.id,
+                     prediction_result=prediction_result)
         
         # Generate explanation
         explanation = tabular_service.explain_prediction(input_data.dict())
         prediction_result["explanation"] = explanation
+        logger.info("Explanation generated for tabular prediction",
+                     user_id=current_user.id)
         
         # Save prediction to database
         prediction_id = str(uuid.uuid4())
@@ -42,6 +53,9 @@ async def predict_tabular(
             confidence_score=prediction_result["confidence"]
         )
         db.add(db_prediction)
+        logger.info("Prediction saved to database",
+                     user_id=current_user.id,
+                     prediction_id=prediction_id)
         
         # Save tabular data to separate table for easier querying
         db_tabular = TabularData(
@@ -59,17 +73,30 @@ async def predict_tabular(
             active=input_data.active
         )
         db.add(db_tabular)
+        logger.info("Tabular data saved to database",
+                     user_id=current_user.id,
+                     prediction_id=prediction_id)
         
         db.commit()
         db.refresh(db_prediction)
+        logger.info("Database transaction committed",
+                     user_id=current_user.id,
+                     prediction_id=prediction_id)
         
         # Add timestamps to response
         prediction_result["prediction_id"] = prediction_id
         prediction_result["created_at"] = db_prediction.created_at
         
+        logger.info("Tabular prediction response sent",
+                     user_id=current_user.id,
+                     prediction_id=prediction_id)
         return prediction_result
         
     except Exception as e:
+        logger.error("Error processing tabular prediction",
+                      user_id=current_user.id,
+                      error=str(e),
+                      exc_info=True)
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -83,6 +110,10 @@ async def predict_ecg(
     current_user: User = Depends(get_current_active_user)
 ):
     """Upload ECG file for arrhythmia detection"""
+    logger.info("ECG prediction request received",
+                 user_id=current_user.id,
+                 file_name=file.filename,
+                 file_size=getattr(file, 'size', None))
     try:
         # Save uploaded file
         upload_dir = os.path.join("uploads", "ecg_files")
@@ -92,9 +123,16 @@ async def predict_ecg(
         with open(file_path, "wb") as buffer:
             content = await file.read()
             buffer.write(content)
+        logger.info("ECG file saved",
+                     user_id=current_user.id,
+                     file_path=file_path,
+                     file_size=len(content))
         
         # Make prediction
         prediction_result = ecg_service.predict(file_path)
+        logger.info("ECG prediction completed",
+                     user_id=current_user.id,
+                     prediction_result=prediction_result)
         
         # Detect abnormalities
         abnormalities = ecg_service.detect_abnormalities(file_path)
@@ -102,9 +140,14 @@ async def predict_ecg(
         # Generate explanation
         explanation = ecg_service.explain_prediction(prediction_result)
         prediction_result["explanation"] = explanation
+        logger.info("Explanation generated for ECG prediction",
+                     user_id=current_user.id)
         
         # Generate visualization
         viz_path = visualization_service.generate_visualization(file_path, abnormalities)
+        logger.info("Visualization generated",
+                     user_id=current_user.id,
+                     viz_path=viz_path)
         visualization_url = f"/api/v1/ecg/{uuid.uuid4()}/visualization"  # Placeholder URL
         
         # Save prediction to database
@@ -122,6 +165,9 @@ async def predict_ecg(
             confidence_score=prediction_result["confidence"]
         )
         db.add(db_prediction)
+        logger.info("ECG prediction saved to database",
+                     user_id=current_user.id,
+                     prediction_id=prediction_id)
         
         # Save ECG data to separate table
         db_ecg = EcgData(
@@ -133,9 +179,15 @@ async def predict_ecg(
             abnormalities=abnormalities
         )
         db.add(db_ecg)
+        logger.info("ECG data saved to database",
+                     user_id=current_user.id,
+                     prediction_id=prediction_id)
         
         db.commit()
         db.refresh(db_prediction)
+        logger.info("Database transaction committed",
+                     user_id=current_user.id,
+                     prediction_id=prediction_id)
         
         # Prepare response
         response_data = {
@@ -152,6 +204,10 @@ async def predict_ecg(
         return response_data
         
     except Exception as e:
+        logger.error("Error processing ECG prediction",
+                      user_id=current_user.id,
+                      error=str(e),
+                      exc_info=True)
         db.rollback()
         # Clean up uploaded file if saving to DB failed
         if 'file_path' in locals() and os.path.exists(file_path):

@@ -4,6 +4,10 @@ import os
 from typing import Dict, Any
 from sklearn.preprocessing import StandardScaler
 import shap
+from app.core import get_logger
+from app.core.logging import performance_monitor
+
+logger = get_logger(__name__)
 
 class TabularPredictionService:
     def __init__(self):
@@ -17,24 +21,32 @@ class TabularPredictionService:
     
     def load_model(self):
         """Load the trained model and scaler"""
+        logger.info("Loading tabular prediction model and scaler")
         try:
             # Load the model
             model_path = os.path.join("models", "best_tabular_model.pkl")
             if os.path.exists(model_path):
                 with open(model_path, 'rb') as f:
                     self.model = pickle.load(f)
+                logger.info("Model loaded successfully", model_path=model_path)
+            else:
+                logger.warning("Model file not found, using dummy model", model_path=model_path)
             
             # Load the scaler
             scaler_path = os.path.join("models", "tabular_scaler.pkl")
             if os.path.exists(scaler_path):
                 with open(scaler_path, 'rb') as f:
                     self.scaler = pickle.load(f)
+                logger.info("Scaler loaded successfully", scaler_path=scaler_path)
+            else:
+                logger.warning("Scaler file not found, using default scaler", scaler_path=scaler_path)
         except Exception as e:
-            print(f"Error loading model or scaler: {e}")
+            logger.error("Error loading model or scaler", error=str(e), exc_info=True)
             # Initialize with dummy values for testing
             self.model = None
             self.scaler = StandardScaler()
     
+    @performance_monitor(logger)
     def preprocess_input(self, input_data: Dict[str, Any]) -> np.ndarray:
         """Preprocess input data for prediction"""
         # Convert input data to array in the correct order
@@ -60,38 +72,50 @@ class TabularPredictionService:
             
         return input_scaled
     
+    @performance_monitor(logger)
     def predict(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """Make prediction using the loaded model"""
+        logger.info("Making tabular prediction", input_data=input_data)
         if self.model is None:
             # Return dummy prediction for testing
+            logger.warning("Using dummy model for prediction")
             probability = 0.75
             risk_level = "High Risk" if probability > 0.5 else "Low Risk"
-            return {
+            result = {
                 "risk_level": risk_level,
                 "probability": probability,
                 "confidence": 0.85
             }
+            logger.info("Dummy prediction completed", result=result)
+            return result
         
         # Preprocess input
+        logger.debug("Preprocessing input data")
         input_processed = self.preprocess_input(input_data)
         
         # Make prediction
+        logger.debug("Making prediction with model")
         probability = self.model.predict_proba(input_processed)[0][1]
         risk_level = "High Risk" if probability > 0.5 else "Low Risk"
         
         # Calculate confidence (distance from 0.5)
         confidence = abs(0.5 - probability) * 2
         
-        return {
+        result = {
             "risk_level": risk_level,
             "probability": float(probability),
             "confidence": float(confidence)
         }
+        logger.info("Prediction completed", result=result)
+        return result
     
+    @performance_monitor(logger)
     def explain_prediction(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """Generate explanation for the prediction"""
+        logger.info("Generating prediction explanation", input_data=input_data)
         if self.model is None:
-            return {
+            logger.warning("Using static explanation for dummy model")
+            result = {
                 "summary": "Based on the patient data, there is a high risk of cardiovascular disease.",
                 "feature_importance": [
                     {"feature": "Systolic Blood Pressure", "importance": 0.3},
@@ -106,10 +130,13 @@ class TabularPredictionService:
                     "Maintain current physical activity level"
                 ]
             }
+            logger.info("Static explanation generated", result=result)
+            return result
         
         # For now, return static explanation
         # In a real implementation, we would use SHAP or similar
-        return {
+        logger.debug("Generating static explanation")
+        result = {
             "summary": "Based on the patient data, there is a high risk of cardiovascular disease.",
             "feature_importance": [
                 {"feature": "Systolic Blood Pressure", "importance": 0.3},
@@ -124,6 +151,8 @@ class TabularPredictionService:
                 "Maintain current physical activity level"
             ]
         }
+        logger.info("Explanation generated", result=result)
+        return result
 
 # Global instance
 tabular_service = TabularPredictionService()

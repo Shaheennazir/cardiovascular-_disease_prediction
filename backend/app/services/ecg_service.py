@@ -4,6 +4,10 @@ import wfdb
 import os
 from typing import Dict, Any, List
 import uuid
+from app.core import get_logger
+from app.core.logging import performance_monitor
+
+logger = get_logger(__name__)
 
 class ECGPredictionService:
     def __init__(self):
@@ -12,25 +16,33 @@ class ECGPredictionService:
     
     def load_model(self):
         """Load the trained ECG model"""
+        logger.info("Loading ECG prediction model")
         try:
             model_path = os.path.join("models", "best_ecg_model.h5")
             if os.path.exists(model_path):
                 self.model = tf.keras.models.load_model(model_path)
+                logger.info("ECG model loaded successfully", model_path=model_path)
+            else:
+                logger.warning("ECG model file not found, using dummy model", model_path=model_path)
         except Exception as e:
-            print(f"Error loading ECG model: {e}")
+            logger.error("Error loading ECG model", error=str(e), exc_info=True)
             self.model = None
     
+    @performance_monitor(logger)
     def preprocess_ecg_file(self, file_path: str) -> np.ndarray:
         """Preprocess ECG file for prediction"""
+        logger.info("Preprocessing ECG file", file_path=file_path)
         try:
             # Read the ECG record using wfdb
             record = wfdb.rdrecord(file_path.replace('.dat', ''))
             
             # Extract signal data
             signal = record.p_signal
+            logger.debug("ECG signal extracted", signal_shape=signal.shape)
             
             # Normalize signal
             signal = (signal - np.mean(signal)) / np.std(signal)
+            logger.debug("ECG signal normalized")
             
             # Reshape for model input (assuming model expects specific shape)
             # This would need to be adjusted based on the actual model requirements
@@ -41,17 +53,22 @@ class ECGPredictionService:
             else:
                 signal = signal.reshape(1, signal.shape[0], signal.shape[1])
                 
+            logger.debug("ECG signal reshaped", final_shape=signal.shape)
             return signal
         except Exception as e:
-            print(f"Error preprocessing ECG file: {e}")
+            logger.error("Error preprocessing ECG file", error=str(e), exc_info=True)
             # Return dummy data for testing
+            logger.warning("Using dummy ECG data for testing")
             return np.random.rand(1, 1000, 1).astype(np.float32)
     
+    @performance_monitor(logger)
     def predict(self, file_path: str) -> Dict[str, Any]:
         """Make prediction using the loaded ECG model"""
+        logger.info("Making ECG prediction", file_path=file_path)
         if self.model is None:
             # Return dummy prediction for testing
-            return {
+            logger.warning("Using dummy model for ECG prediction")
+            result = {
                 "classification": "Arrhythmia Detected",
                 "probabilities": {
                     "normal": 0.1,
@@ -61,11 +78,15 @@ class ECGPredictionService:
                 },
                 "confidence": 0.85
             }
+            logger.info("Dummy ECG prediction completed", result=result)
+            return result
         
         # Preprocess ECG file
+        logger.debug("Preprocessing ECG file for prediction")
         ecg_data = self.preprocess_ecg_file(file_path)
         
         # Make prediction
+        logger.debug("Making prediction with ECG model")
         probabilities = self.model.predict(ecg_data)[0]
         
         # Map to class names (this would need to be adjusted based on actual model)
@@ -78,18 +99,22 @@ class ECGPredictionService:
         # Confidence is the highest probability
         confidence = float(np.max(probabilities))
         
-        return {
+        result = {
             "classification": predicted_class,
             "probabilities": prob_dict,
             "confidence": confidence
         }
+        logger.info("ECG prediction completed", result=result)
+        return result
     
+    @performance_monitor(logger)
     def detect_abnormalities(self, file_path: str) -> List[Dict[str, Any]]:
         """Detect abnormalities in ECG signal"""
+        logger.info("Detecting abnormalities in ECG signal", file_path=file_path)
         # For now, return static abnormalities
         # In a real implementation, this would use the model's attention mechanisms
         # or other techniques to identify abnormal segments
-        return [
+        abnormalities = [
             {
                 "id": str(uuid.uuid4()),
                 "type": "PVC",
@@ -107,10 +132,14 @@ class ECGPredictionService:
                 "description": "Atrial Fibrillation episode"
             }
         ]
+        logger.info("Abnormalities detected", count=len(abnormalities))
+        return abnormalities
     
+    @performance_monitor(logger)
     def explain_prediction(self, prediction_result: Dict[str, Any]) -> Dict[str, Any]:
         """Generate explanation for the ECG prediction"""
-        return {
+        logger.info("Generating ECG prediction explanation", prediction_result=prediction_result)
+        result = {
             "summary": f"ECG analysis shows {prediction_result['classification']} with {prediction_result['confidence']*100:.1f}% confidence.",
             "abnormal_segments": [
                 {
@@ -130,6 +159,8 @@ class ECGPredictionService:
                 "Avoid excessive caffeine and alcohol"
             ]
         }
+        logger.info("ECG explanation generated", result=result)
+        return result
 
 # Global instance
 ecg_service = ECGPredictionService()

@@ -7,6 +7,9 @@ from app.api.deps import get_current_active_user
 from app.models.user import User
 from app.models.prediction import Prediction
 from app.schemas.prediction import PredictionHistoryItem, PredictionHistoryResponse
+from app.core import get_logger
+
+logger = get_logger(__name__)
 
 router = APIRouter()
 
@@ -19,6 +22,11 @@ async def get_prediction_history(
     current_user: User = Depends(get_current_active_user)
 ):
     """Retrieve user's prediction history"""
+    logger.info("Prediction history request received",
+                 user_id=current_user.id,
+                 limit=limit,
+                 offset=offset,
+                 type=type)
     try:
         # Build query
         query = db.query(Prediction).filter(Prediction.user_id == current_user.id)
@@ -55,6 +63,10 @@ async def get_prediction_history(
             )
             history_items.append(history_item)
         
+        logger.info("Prediction history retrieved successfully",
+                     user_id=current_user.id,
+                     total_results=total,
+                     returned_results=len(history_items))
         return PredictionHistoryResponse(
             predictions=history_items,
             total=total
@@ -73,6 +85,9 @@ async def get_prediction_detail(
     current_user: User = Depends(get_current_active_user)
 ):
     """Retrieve specific prediction details"""
+    logger.info("Prediction detail request received",
+                 user_id=current_user.id,
+                 prediction_id=prediction_id)
     try:
         # Check if prediction exists and belongs to user
         prediction = db.query(Prediction).filter(
@@ -86,11 +101,19 @@ async def get_prediction_detail(
                 detail="Prediction not found"
             )
         
+        logger.info("Prediction detail retrieved successfully",
+                     user_id=current_user.id,
+                     prediction_id=prediction_id)
         return prediction
         
     except HTTPException:
         raise
     except Exception as e:
+        logger.error("Error retrieving prediction details",
+                      user_id=current_user.id,
+                      prediction_id=prediction_id,
+                      error=str(e),
+                      exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error retrieving prediction details: {str(e)}"

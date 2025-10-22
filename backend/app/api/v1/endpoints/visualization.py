@@ -6,6 +6,9 @@ from app.db.base import get_db
 from app.api.deps import get_current_active_user
 from app.models.user import User
 from app.models.prediction import Prediction
+from app.core import get_logger
+
+logger = get_logger(__name__)
 
 router = APIRouter()
 
@@ -16,6 +19,9 @@ async def get_ecg_visualization(
     current_user: User = Depends(get_current_active_user)
 ):
     """Retrieve ECG signal visualization"""
+    logger.info("ECG visualization request received",
+                 user_id=current_user.id,
+                 prediction_id=prediction_id)
     try:
         # Check if prediction exists and belongs to user
         prediction = db.query(Prediction).filter(
@@ -47,6 +53,9 @@ async def get_ecg_visualization(
             if os.path.exists(viz_path):
                 return FileResponse(viz_path, media_type='image/png', filename='ecg_visualization.png')
         
+        logger.info("ECG visualization returned successfully",
+                     user_id=current_user.id,
+                     prediction_id=prediction_id)
         # If no visualization exists, return a placeholder
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -56,6 +65,11 @@ async def get_ecg_visualization(
     except HTTPException:
         raise
     except Exception as e:
+        logger.error("Error retrieving visualization",
+                      user_id=current_user.id,
+                      prediction_id=prediction_id,
+                      error=str(e),
+                      exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error retrieving visualization: {str(e)}"
