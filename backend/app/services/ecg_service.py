@@ -126,8 +126,15 @@ class ECGPredictionService:
                 signal = signal.reshape(1, -1, 1)
             elif len(signal.shape) == 2 and signal.shape[1] == 1:
                 signal = signal.reshape(1, -1, 1)
+            elif len(signal.shape) == 2 and signal.shape[1] > 1:
+                # Multi-channel ECG: select first channel for single-channel model
+                logger.info(f"Multi-channel ECG detected with {signal.shape[1]} channels, selecting first channel")
+                signal = signal[:, 0]  # Select first channel
+                signal = signal.reshape(1, -1, 1)
             else:
-                signal = signal.reshape(1, signal.shape[0], signal.shape[1])
+                # Unexpected shape, try to handle gracefully
+                logger.warning(f"Unexpected signal shape: {signal.shape}, attempting to reshape")
+                signal = signal.reshape(1, signal.shape[0], 1)
                 
             logger.debug("ECG signal reshaped", final_shape=signal.shape)
             return signal
