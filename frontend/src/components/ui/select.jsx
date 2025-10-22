@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 
 const Select = ({ children, value, onValueChange, required, name, placeholder }) => {
@@ -21,29 +20,42 @@ const Select = ({ children, value, onValueChange, required, name, placeholder })
   
   // Find the selected item to display its label
   let selectedLabel = placeholder || 'Select an option';
-  const childrenArray = React.Children.toArray(children);
   
-  for (let child of childrenArray) {
-    if (child.props && child.props.value === value) {
-      selectedLabel = child.props.children;
+  // Extract items from content if it exists
+  let items = [];
+  React.Children.forEach(children, (child) => {
+    if (child && child.type === SelectContent) {
+      React.Children.forEach(child.props.children, (item) => {
+        if (item && item.type === SelectItem) {
+          items.push(item);
+        }
+      });
+    }
+  });
+  
+  // Find selected label from items
+  for (let item of items) {
+    if (item.props && item.props.value === value) {
+      selectedLabel = item.props.children;
       break;
     }
   }
   
   const handleToggle = () => {
-    console.log('Toggling dropdown:', !isOpen);
     setIsOpen(!isOpen);
   };
   
   return (
     <div ref={selectRef} className="relative">
       {/* Hidden input for form submission */}
-      <input 
-        type="hidden" 
-        name={name} 
-        value={value || ''} 
-        required={required}
-      />
+      {name && (
+        <input 
+          type="hidden" 
+          name={name} 
+          value={value || ''} 
+          required={required}
+        />
+      )}
       
       <div
         className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -55,6 +67,9 @@ const Select = ({ children, value, onValueChange, required, name, placeholder })
             handleToggle();
           }
         }}
+        role="combobox"
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
       >
         <span className={value ? 'text-foreground' : 'text-muted-foreground'}>
           {selectedLabel}
@@ -74,20 +89,19 @@ const Select = ({ children, value, onValueChange, required, name, placeholder })
       </div>
       
       {isOpen && (
-        <div className="absolute mt-1 w-full rounded-md border bg-popover p-1 text-popover-foreground shadow-md z-50">
-          {React.Children.map(children, (child) => {
-            // Check if child is a SelectItem by looking for value prop
-            if (child.type === SelectItem) {
-              return React.cloneElement(child, {
-                onSelect: (val) => {
-                  console.log('Selecting value:', val);
-                  onValueChange(val);
-                  setIsOpen(false);
-                },
-                isSelected: child.props.value === value
-              });
-            }
-            return child;
+        <div 
+          className="absolute mt-1 w-full rounded-md border bg-popover p-1 text-popover-foreground shadow-md z-50"
+          role="listbox"
+        >
+          {items.map((item, index) => {
+            return React.cloneElement(item, {
+              onSelect: (val) => {
+                onValueChange(val);
+                setIsOpen(false);
+              },
+              isSelected: item.props.value === value,
+              key: index
+            });
           })}
         </div>
       )}
@@ -99,7 +113,6 @@ const SelectItem = ({ value, children, onSelect, isSelected, className, ...props
   const handleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('Item clicked:', value);
     onSelect(value);
   };
   
@@ -111,6 +124,8 @@ const SelectItem = ({ value, children, onSelect, isSelected, className, ...props
         e.preventDefault();
         handleClick(e);
       }}
+      role="option"
+      aria-selected={isSelected}
       {...props}
     >
       {isSelected && (
@@ -134,10 +149,20 @@ const SelectItem = ({ value, children, onSelect, isSelected, className, ...props
   );
 };
 
-// Structural components (just for compatibility with the existing API)
-const SelectTrigger = ({ children }) => children;
-const SelectValue = ({ placeholder }) => placeholder;
-const SelectContent = ({ children }) => children;
+// Structural components
+const SelectTrigger = ({ children, className, ...props }) => (
+  <div className={className} {...props}>
+    {children}
+  </div>
+);
+
+const SelectValue = ({ placeholder }) => <span>{placeholder}</span>;
+
+const SelectContent = ({ children, className, ...props }) => (
+  <div className={className} {...props}>
+    {children}
+  </div>
+);
 
 // Attach sub-components
 Select.Trigger = SelectTrigger;
