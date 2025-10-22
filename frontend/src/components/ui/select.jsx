@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-const Select = ({ children, value, onValueChange, required, ...props }) => {
+const Select = ({ children, value, onValueChange, required, name, ...props }) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef(null);
   
@@ -27,15 +27,13 @@ const Select = ({ children, value, onValueChange, required, ...props }) => {
   
   return (
     <div ref={selectRef} className="relative">
-      <select
-        {...props}
-        value={value}
+      {/* Hidden input for form submission */}
+      <input 
+        type="hidden" 
+        name={name} 
+        value={value || ''} 
         required={required}
-        onChange={(e) => onValueChange && onValueChange(e.target.value)}
-        className="hidden"
-      >
-        {children}
-      </select>
+      />
       
       <div
         className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
