@@ -78,9 +78,9 @@ class ECGPredictionService:
             # --- END FIX HEADER NAME MISMATCH ---
                 
             # Force WFDB to use the updated header file explicitly
+            record_name = os.path.splitext(os.path.basename(base_path))[0]
             record = wfdb.rdrecord(
-                record_name=os.path.basename(base_path),
-                pb_dir=os.path.dirname(base_path)
+                os.path.join(os.path.dirname(base_path), record_name)
             )
             
             logger.info(f"✅ Successfully loaded record: {record.__dict__.keys()}")
