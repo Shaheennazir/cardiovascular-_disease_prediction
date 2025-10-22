@@ -7,6 +7,7 @@ from typing import Dict, Any, List
 import uuid
 from app.core import get_logger
 from app.core.logging import performance_monitor
+from app.core.file_utils import get_absolute_file_path, get_visualization_directory
 
 logger = get_logger(__name__)
 
@@ -30,7 +31,8 @@ class ECGVisualizationService:
             base_name = os.path.splitext(os.path.basename(file_path))[0]
             # Use the full file path directly with wfdb
             # Convert to absolute path to ensure correct handling in Docker
-            abs_file_path = os.path.abspath(os.path.splitext(file_path)[0])
+            abs_file_path = get_absolute_file_path(file_path)
+            logger.debug("Absolute file path for wfdb", abs_file_path=abs_file_path)
             record = wfdb.rdrecord(abs_file_path)
             
             # Extract signal data (using first lead for simplicity)
@@ -140,8 +142,7 @@ class ECGVisualizationService:
         
         # Generate unique filename
         viz_id = str(uuid.uuid4())
-        output_dir = os.path.join("uploads", "visualizations")
-        os.makedirs(output_dir, exist_ok=True)
+        output_dir = get_visualization_directory()
         output_path = os.path.join(output_dir, f"ecg_viz_{viz_id}.png")
         logger.debug("Generated output path", output_path=output_path)
         

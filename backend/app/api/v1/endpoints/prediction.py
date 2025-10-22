@@ -14,6 +14,7 @@ from app.services.tabular_service import tabular_service
 from app.services.ecg_service import ecg_service
 from app.services.visualization_service import visualization_service
 from app.core import get_logger
+from app.core.file_utils import get_upload_directory
 
 logger = get_logger(__name__)
 
@@ -131,8 +132,7 @@ async def predict_ecg(
         hea_file = hea_files[0]
         
         # Save uploaded files
-        upload_dir = os.path.join("uploads", "ecg_files")
-        os.makedirs(upload_dir, exist_ok=True)
+        upload_dir = get_upload_directory()
         
         # Save .dat file
         dat_filename = f"{uuid.uuid4()}_{dat_file.filename}"
@@ -154,6 +154,13 @@ async def predict_ecg(
                      hea_file_path=hea_file_path,
                      dat_file_size=len(dat_content),
                      hea_file_size=len(hea_content))
+        
+        # Log absolute paths for debugging
+        abs_dat_file_path = os.path.abspath(dat_file_path)
+        abs_hea_file_path = os.path.abspath(hea_file_path)
+        logger.debug("Absolute file paths",
+                     abs_dat_file_path=abs_dat_file_path,
+                     abs_hea_file_path=abs_hea_file_path)
         
         # Use the .dat file path for processing
         file_path = dat_file_path

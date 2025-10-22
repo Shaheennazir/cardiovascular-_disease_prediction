@@ -25,6 +25,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Create directories for uploads and database
 RUN mkdir -p uploads/ecg_files uploads/visualizations db
+RUN chmod -R 777 uploads db
 
 # Copy application code
 COPY . .
