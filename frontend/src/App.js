@@ -100,6 +100,7 @@ function App() {
             isLoggedIn={false}
             onLogin={handleShowLogin}
             onRegister={handleShowRegister}
+            onGetStarted={handleGetStarted}
             isTransparent={true}
           />
           <LandingPage onGetStarted={handleGetStarted} />

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Menu, X, Heart } from 'lucide-react';
 
-const Header = ({ isLoggedIn, onLogin, onRegister, onLogout, isTransparent = false }) => {
+const Header = ({ isLoggedIn, onLogin, onRegister, onLogout, onGetStarted, isTransparent = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const headerClasses = isTransparent
@@ -13,6 +13,7 @@ const Header = ({ isLoggedIn, onLogin, onRegister, onLogout, isTransparent = fal
 
   return (
     <header className={`${headerClasses} px-4 md:px-10 lg:px-20 xl:px-40`}>
+      <div className="flex items-center justify-between h-20">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex items-center space-x-2">
@@ -75,16 +76,10 @@ const Header = ({ isLoggedIn, onLogin, onRegister, onLogout, isTransparent = fal
               ) : (
                 <div className="flex flex-col space-y-2 pt-2">
                   <button
-                    onClick={onLogin}
-                    className="w-full px-4 py-2 rounded-md text-foreground hover:bg-accent transition-colors duration-200"
-                  >
-                    Login
-                  </button>
-                  <button
-                    onClick={onRegister}
+                    onClick={onGetStarted || onRegister}
                     className="w-full px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200"
                   >
-                    Register
+                    Get Started
                   </button>
                 </div>
               )}
@@ -92,7 +87,6 @@ const Header = ({ isLoggedIn, onLogin, onRegister, onLogout, isTransparent = fal
           </div>
         )}
       </div>
-    </header>
   );
 };
 
