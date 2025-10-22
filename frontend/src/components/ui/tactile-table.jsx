@@ -1,109 +1,59 @@
 import React from 'react';
 
-// Simple class name concatenation function
-const cn = (...classes) => classes.filter(Boolean).join(' ');
-
-const TactileTable = React.forwardRef(({ className, children, ...props }, ref) => (
-  <div className="overflow-hidden rounded-xl border border-zen-blue/20 dark:border-zen-blue/10 glassmorphic">
-    <table
-      ref={ref}
-      className={cn('w-full', className)}
-      {...props}
-    >
-      {children}
-    </table>
-  </div>
-));
-
-TactileTable.displayName = 'TactileTable';
-
-const TactileTableHeader = React.forwardRef(({ className, children, ...props }, ref) => (
-  <thead
-    ref={ref}
-    className={cn('bg-zen-light-blue/30 dark:bg-zen-dark-blue/30', className)}
+const TactileTable = ({ className, ...props }) => (
+  <table
+    className={`w-full caption-bottom text-sm ${className || ''}`}
     {...props}
-  >
-    {children}
-  </thead>
-));
+  />
+);
 
-TactileTableHeader.displayName = 'TactileTableHeader';
+const TableHeader = ({ className, ...props }) => (
+  <thead className={`[&_tr]:border-b ${className || ''}`} {...props} />
+);
 
-const TactileTableBody = React.forwardRef(({ className, children, ...props }, ref) => (
-  <tbody
-    ref={ref}
-    className={cn('', className)}
-    {...props}
-  >
-    {children}
-  </tbody>
-));
+const TableBody = ({ className, ...props }) => (
+  <tbody className={`[&_tr:last-child]:border-0 ${className || ''}`} {...props} />
+);
 
-TactileTableBody.displayName = 'TactileTableBody';
+const TableFooter = ({ className, ...props }) => (
+  <tfoot className={`bg-surface-contrast font-medium [&>tr]:last:border-b-0 ${className || ''}`} {...props} />
+);
 
-const TactileTableRow = React.forwardRef(({ className, children, ...props }, ref) => (
+const TableRow = ({ className, ...props }) => (
   <tr
-    ref={ref}
-    className={cn(
-      'border-t border-t-zen-blue/20 dark:border-t-zen-blue/10 table-row-tactile',
-      className
-    )}
+    className={`border-b transition-colors hover:bg-surface-contrast data-[state=selected]:bg-surface-contrast ${className || ''}`}
     {...props}
-  >
-    {children}
-  </tr>
-));
+  />
+);
 
-TactileTableRow.displayName = 'TactileTableRow';
-
-const TactileTableHead = React.forwardRef(({ className, children, ...props }, ref) => (
+const TableHead = ({ className, ...props }) => (
   <th
-    ref={ref}
-    className={cn(
-      'px-6 py-4 text-left text-base font-medium text-zen-dark-blue/80 dark:text-zen-light-blue/80',
-      className
-    )}
+    className={`h-12 px-4 text-left align-middle font-medium text-text-secondary [&:has([role=checkbox])]:pr-0 ${className || ''}`}
     {...props}
-  >
-    {children}
-  </th>
-));
+  />
+);
 
-TactileTableHead.displayName = 'TactileTableHead';
-
-const TactileTableCell = React.forwardRef(({ className, children, ...props }, ref) => (
+const TableCell = ({ className, ...props }) => (
   <td
-    ref={ref}
-    className={cn(
-      'h-[80px] px-6 py-3 text-base font-light text-zen-dark-blue/70 dark:text-zen-light-blue/70',
-      className
-    )}
+    className={`p-4 align-middle [&:has([role=checkbox])]:pr-0 ${className || ''}`}
     {...props}
-  >
-    {children}
-  </td>
-));
+  />
+);
 
-TactileTableCell.displayName = 'TactileTableCell';
-
-const TactileTableCaption = React.forwardRef(({ className, children, ...props }, ref) => (
+const TableCaption = ({ className, ...props }) => (
   <caption
-    ref={ref}
-    className={cn('mt-4 text-sm text-muted-foreground', className)}
+    className={`mt-4 text-sm text-text-secondary ${className || ''}`}
     {...props}
-  >
-    {children}
-  </caption>
-));
-
-TactileTableCaption.displayName = 'TactileTableCaption';
+  />
+);
 
 export {
   TactileTable,
-  TactileTableHeader,
-  TactileTableBody,
-  TactileTableRow,
-  TactileTableHead,
-  TactileTableCell,
-  TactileTableCaption,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableCaption,
 };

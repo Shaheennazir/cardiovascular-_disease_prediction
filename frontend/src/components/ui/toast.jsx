@@ -1,80 +1,77 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { X } from 'lucide-react';
+import { Button } from './button';
 
-const Toast = ({
-  title,
-  description,
-  variant = 'default',
-  duration = 5000,
+const Toast = ({ 
+  title, 
+  description, 
+  variant = 'default', 
   onDismiss,
-  className
+  className,
+  ...props 
 }) => {
-  const [isVisible, setIsVisible] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-      if (onDismiss) onDismiss();
-    }, duration);
-
-    return () => clearTimeout(timer);
-  }, [duration, onDismiss]);
-
-  if (!isVisible) return null;
-
-  const variantStyles = {
-    default: 'bg-background-light dark:bg-background-dark border-zen-blue/20 dark:border-zen-blue/10 glassmorphic',
-    destructive: 'bg-tactile-accent text-tactile-text-dark border-tactile-accent',
-    success: 'bg-zen-green text-tactile-text-dark border-zen-green',
-    warning: 'bg-zen-blue text-tactile-text-light border-zen-blue',
+  // Determine variant styles
+  const getVariantStyles = (variant) => {
+    switch (variant) {
+      case 'success':
+        return 'bg-success-50 border-success-200 text-success-800';
+      case 'error':
+        return 'bg-danger-50 border-danger-200 text-danger-800';
+      case 'warning':
+        return 'bg-warning-50 border-warning-200 text-warning-800';
+      case 'info':
+        return 'bg-primary-50 border-primary-200 text-primary-800';
+      default:
+        return 'bg-surface border-border text-text-primary';
+    }
   };
-
-  // Simple class name concatenation function
-  const cn = (...classes) => classes.filter(Boolean).join(' ');
+  
+  const getTextStyles = (variant) => {
+    switch (variant) {
+      case 'success':
+        return 'text-success-700';
+      case 'error':
+        return 'text-danger-700';
+      case 'warning':
+        return 'text-warning-700';
+      case 'info':
+        return 'text-primary-700';
+      default:
+        return 'text-text-secondary';
+    }
+  };
 
   return (
     <div
-      className={cn(
-        'fixed top-4 right-4 z-50 w-full max-w-sm rounded-xl border p-4 shadow-lg transition-all duration-300 ease-in-out',
-        variantStyles[variant],
-        isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0',
-        className
-      )}
+      className={`max-w-sm w-full rounded-lg border p-4 shadow-lg ${getVariantStyles(variant)} ${className || ''}`}
+      {...props}
     >
-      <div className="flex items-start gap-3">
-        <div className="flex-1 space-y-1">
+      <div className="flex items-start">
+        <div className="flex-1">
           {title && (
-            <h3 className={cn(
-              'text-sm font-semibold',
-              variant === 'default' ? 'text-zen-dark-blue dark:text-zen-light-blue' : 'text-current'
-            )}>
+            <h4 className="text-sm font-medium">
               {title}
-            </h3>
+            </h4>
           )}
           {description && (
-            <p className={cn(
-              'text-sm',
-              variant === 'default' ? 'text-zen-dark-blue/70 dark:text-zen-light-blue/70' : 'text-current/90'
-            )}>
+            <p className={`text-sm mt-1 ${getTextStyles(variant)}`}>
               {description}
             </p>
           )}
         </div>
-        <button
-          onClick={() => {
-            setIsVisible(false);
-            if (onDismiss) onDismiss();
-          }}
-          className={cn(
-            'rounded-lg p-1 hover:opacity-70',
-            variant === 'default' ? 'text-zen-dark-blue/60 hover:text-zen-dark-blue dark:text-zen-light-blue/60 dark:hover:text-zen-light-blue' : 'text-current/80'
-          )}
-        >
-          <X className="h-4 w-4" />
-        </button>
+        {onDismiss && (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={onDismiss}
+            className="ml-2"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
       </div>
     </div>
   );
 };
 
-export default Toast;
+export { Toast };

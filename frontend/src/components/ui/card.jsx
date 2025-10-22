@@ -1,62 +1,60 @@
 import React from 'react';
 
-// Simple class name concatenation function
-const cn = (...classes) => classes.filter(Boolean).join(' ');
-
 const Card = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn(
-      'rounded-lg border bg-card text-card-foreground shadow-sm glassmorphic',
-      className
-    )}
+    className={`card ${className || ''}`}
     {...props}
   />
 ));
-Card.displayName = 'Card';
 
 const CardHeader = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('flex flex-col space-y-1.5 p-6', className)}
+    className={`flex flex-col space-y-1.5 p-6 ${className || ''}`}
     {...props}
   />
 ));
-CardHeader.displayName = 'CardHeader';
 
-const CardTitle = React.forwardRef(({ className, ...props }, ref) => (
+const CardTitle = React.forwardRef(({ className, children, ...props }, ref) => (
   <h3
     ref={ref}
-    className={cn(
-      'text-2xl font-semibold leading-none tracking-tight text-zen-dark-blue dark:text-zen-light-blue',
-      className
-    )}
+    className={`heading-4 ${className || ''}`}
     {...props}
-  />
+  >
+    {children}
+  </h3>
 ));
-CardTitle.displayName = 'CardTitle';
 
 const CardDescription = React.forwardRef(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn('text-sm text-zen-dark-blue/80 dark:text-zen-light-blue/80', className)}
+    className={`body-small text-text-secondary ${className || ''}`}
     {...props}
   />
 ));
-CardDescription.displayName = 'CardDescription';
 
 const CardContent = React.forwardRef(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn('p-6 pt-0', className)} {...props} />
+  <div
+    ref={ref}
+    className={`p-6 pt-0 ${className || ''}`}
+    {...props}
+  />
 ));
-CardContent.displayName = 'CardContent';
 
 const CardFooter = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('flex items-center p-6 pt-0', className)}
+    className={`flex items-center p-6 pt-0 ${className || ''}`}
     {...props}
   />
 ));
+
+Card.displayName = 'Card';
+CardHeader.displayName = 'CardHeader';
+CardTitle.displayName = 'CardTitle';
+CardDescription.displayName = 'CardDescription';
+CardContent.displayName = 'CardContent';
 CardFooter.displayName = 'CardFooter';
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent };

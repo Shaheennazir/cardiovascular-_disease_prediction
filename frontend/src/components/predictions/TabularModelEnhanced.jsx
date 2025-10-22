@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../../components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Select } from '../../components/ui/select';
-import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
-import { Skeleton } from '../../components/ui/Skeleton';
 import apiService from '../../api';
+import { Activity, Zap } from 'lucide-react';
 
 const TabularModelEnhanced = () => {
   const [formData, setFormData] = useState({
@@ -92,69 +91,69 @@ const TabularModelEnhanced = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <Card className="transition-all duration-300 hover:shadow-lg">
+      <Card className="interactive-lift">
         <CardHeader>
-          <CardTitle className="text-2xl">Tabular Data Prediction</CardTitle>
-          <p className="text-muted-foreground">
+          <CardTitle>Tabular Data Prediction</CardTitle>
+          <CardDescription>
             Enter patient information to predict cardiovascular disease risk
-          </p>
+          </CardDescription>
         </CardHeader>
         
         <CardContent>
           {error && (
-            <div className="mb-6 p-4 bg-destructive/10 border border-destructive/50 rounded-lg animate-shake">
-              <p className="text-destructive">{error}</p>
+            <div className="mb-6 p-4 bg-danger-50 border border-danger-200 rounded-lg animate-shake">
+              <p className="text-danger-800">{error}</p>
             </div>
           )}
           
           {result ? (
             <div className="space-y-6 animate-fade-in-up">
-              <div className="p-6 bg-card rounded-lg border border-border">
-                <h3 className="text-xl font-semibold mb-4 text-foreground">Prediction Results</h3>
+              <div className="p-6 bg-surface rounded-lg border border-border">
+                <h3 className="heading-3 mb-4 text-text-primary">Prediction Results</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className="p-4 bg-primary/5 rounded-lg border border-primary/10">
-                    <p className="text-sm text-muted-foreground">Risk Level</p>
-                    <p className={`text-2xl font-bold ${result.risk === 'High' ? 'text-destructive' : 'text-green-500'}`}>
+                  <div className="p-4 bg-primary-50 rounded-lg border border-primary-200">
+                    <p className="body-small text-text-secondary">Risk Level</p>
+                    <p className={`heading-2 ${result.risk === 'High' ? 'text-danger-500' : 'text-success-500'}`}>
                       {result.risk}
                     </p>
                   </div>
                   
-                  <div className="p-4 bg-primary/5 rounded-lg border border-primary/10">
-                    <p className="text-sm text-muted-foreground">Probability</p>
-                    <p className="text-2xl font-bold text-foreground">
+                  <div className="p-4 bg-primary-50 rounded-lg border border-primary-200">
+                    <p className="body-small text-text-secondary">Probability</p>
+                    <p className="heading-2 text-text-primary">
                       {(result.probability * 100).toFixed(1)}%
                     </p>
                   </div>
                   
-                  <div className="p-4 bg-primary/5 rounded-lg border border-primary/10">
-                    <p className="text-sm text-muted-foreground">Confidence</p>
-                    <p className="text-2xl font-bold text-foreground">
+                  <div className="p-4 bg-primary-50 rounded-lg border border-primary-200">
+                    <p className="body-small text-text-secondary">Confidence</p>
+                    <p className="heading-2 text-text-primary">
                       {(result.confidence * 100).toFixed(1)}%
                     </p>
                   </div>
                 </div>
                 
                 <div className="mb-6">
-                  <h4 className="font-semibold mb-2 text-foreground">Risk Assessment</h4>
-                  <div className="w-full bg-secondary rounded-full h-4">
+                  <h4 className="font-semibold mb-2 text-text-primary">Risk Assessment</h4>
+                  <div className="w-full bg-surface-contrast rounded-full h-4">
                     <div 
                       className={`h-4 rounded-full ${
-                        result.probability > 0.7 ? 'bg-destructive' : 
-                        result.probability > 0.4 ? 'bg-yellow-500' : 'bg-green-500'
+                        result.probability > 0.7 ? 'bg-danger-500' : 
+                        result.probability > 0.4 ? 'bg-warning-500' : 'bg-success-500'
                       }`}
                       style={{ width: `${result.probability * 100}%` }}
                     ></div>
                   </div>
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                  <div className="flex justify-between body-small text-text-tertiary mt-1">
                     <span>Low Risk</span>
                     <span>High Risk</span>
                   </div>
                 </div>
                 
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <h4 className="font-semibold mb-2 text-foreground">Recommendations</h4>
-                  <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                <div className="p-4 bg-surface-contrast rounded-lg">
+                  <h4 className="font-semibold mb-2 text-text-primary">Recommendations</h4>
+                  <ul className="list-disc pl-5 space-y-1 text-text-secondary">
                     <li>Maintain regular checkups with your healthcare provider</li>
                     <li>Follow a heart-healthy diet rich in fruits and vegetables</li>
                     <li>Engage in regular physical activity</li>
@@ -170,16 +169,16 @@ const TabularModelEnhanced = () => {
             </div>
           ) : isLoading ? (
             <div className="space-y-6">
-              <Skeleton className="h-8 w-1/3 animate-pulse" />
+              <div className="h-6 w-1/3 bg-surface-contrast rounded animate-pulse-subtle"></div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="space-y-2">
-                    <Skeleton className="h-4 w-1/4 animate-pulse" />
-                    <Skeleton className="h-10 w-full animate-pulse" />
+                    <div className="h-4 w-1/4 bg-surface-contrast rounded animate-pulse-subtle"></div>
+                    <div className="h-10 w-full bg-surface-contrast rounded animate-pulse-subtle"></div>
                   </div>
                 ))}
               </div>
-              <Skeleton className="h-10 w-full animate-pulse" />
+              <div className="h-10 w-full bg-surface-contrast rounded animate-pulse-subtle"></div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
@@ -200,13 +199,9 @@ const TabularModelEnhanced = () => {
                 <div className="space-y-2">
                   <Label htmlFor="sex">Gender</Label>
                   <Select name="sex" value={formData.sex} onValueChange={(value) => setFormData({...formData, sex: value})} required>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Select gender" />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value="0">Female</Select.Item>
-                      <Select.Item value="1">Male</Select.Item>
-                    </Select.Content>
+                    <option value="">Select gender</option>
+                    <option value="0">Female</option>
+                    <option value="1">Male</option>
                   </Select>
                 </div>
                 
@@ -265,67 +260,47 @@ const TabularModelEnhanced = () => {
                 <div className="space-y-2">
                   <Label htmlFor="cp">Cholesterol Level</Label>
                   <Select name="cp" value={formData.cp} onValueChange={(value) => setFormData({...formData, cp: value})} required>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Select cholesterol level" />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value="0">Low</Select.Item>
-                      <Select.Item value="1">Normal</Select.Item>
-                      <Select.Item value="2">High</Select.Item>
-                    </Select.Content>
+                    <option value="">Select cholesterol level</option>
+                    <option value="0">Low</option>
+                    <option value="1">Normal</option>
+                    <option value="2">High</option>
                   </Select>
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="fbs">Glucose Level</Label>
                   <Select name="fbs" value={formData.fbs} onValueChange={(value) => setFormData({...formData, fbs: value})} required>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Select glucose level" />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value="0">Low</Select.Item>
-                      <Select.Item value="1">Normal</Select.Item>
-                      <Select.Item value="2">High</Select.Item>
-                    </Select.Content>
+                    <option value="">Select glucose level</option>
+                    <option value="0">Low</option>
+                    <option value="1">Normal</option>
+                    <option value="2">High</option>
                   </Select>
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="exang">Smoking</Label>
                   <Select name="exang" value={formData.exang} onValueChange={(value) => setFormData({...formData, exang: value})} required>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Select smoking status" />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value="0">No</Select.Item>
-                      <Select.Item value="1">Yes</Select.Item>
-                    </Select.Content>
+                    <option value="">Select smoking status</option>
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
                   </Select>
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="slope">Alcohol Consumption</Label>
                   <Select name="slope" value={formData.slope} onValueChange={(value) => setFormData({...formData, slope: value})} required>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Select alcohol consumption" />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value="0">No</Select.Item>
-                      <Select.Item value="1">Yes</Select.Item>
-                    </Select.Content>
+                    <option value="">Select alcohol consumption</option>
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
                   </Select>
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="thal">Physical Activity</Label>
                   <Select name="thal" value={formData.thal} onValueChange={(value) => setFormData({...formData, thal: value})} required>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Select activity level" />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value="0">No</Select.Item>
-                      <Select.Item value="1">Yes</Select.Item>
-                    </Select.Content>
+                    <option value="">Select activity level</option>
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
                   </Select>
                 </div>
               </div>
@@ -348,11 +323,14 @@ const TabularModelEnhanced = () => {
               <Button type="submit" disabled={isLoading} onClick={handleSubmit}>
                 {isLoading ? (
                   <>
-                    <LoadingSpinner className="mr-2 h-4 w-4" />
+                    <Activity className="mr-2 h-4 w-4 animate-spin" />
                     Analyzing...
                   </>
                 ) : (
-                  'Predict Risk'
+                  <>
+                    <Zap className="mr-2 h-4 w-4" />
+                    Predict Risk
+                  </>
                 )}
               </Button>
             </div>

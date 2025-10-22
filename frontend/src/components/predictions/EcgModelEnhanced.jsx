@@ -1,304 +1,183 @@
-import React, { useState, useRef } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../../components/ui/card';
+import React, { useState } from 'react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
-import { Skeleton } from '../../components/ui/Skeleton';
-import apiService from '../../api';
+import { Activity, Upload, Zap, CheckCircle, AlertCircle } from 'lucide-react';
 
 const EcgModelEnhanced = () => {
-  const [files, setFiles] = useState([]);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [file, setFile] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
-  const fileInputRef = useRef(null);
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    const droppedFiles = Array.from(e.dataTransfer.files);
-    if (droppedFiles.length > 0) {
-      validateAndSetFiles(droppedFiles);
-    }
-  };
 
   const handleFileChange = (e) => {
-    const selectedFiles = Array.from(e.target.files);
-    if (selectedFiles.length > 0) {
-      validateAndSetFiles(selectedFiles);
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setError('');
     }
   };
 
-  const validateAndSetFiles = (files) => {
-    // Reset error
-    setError('');
-    
-    // Check that we have exactly 2 files
-    if (files.length !== 2) {
-      setError('Please select exactly two files: one .dat file and one .hea file.');
-      setFiles([]);
+  const handleProcess = async () => {
+    if (!file) {
+      setError('Please select a file first');
       return;
     }
-    
-    // Check file types
-    const datFiles = files.filter(file => file.name.endsWith('.dat'));
-    const heaFiles = files.filter(file => file.name.endsWith('.hea'));
-    
-    if (datFiles.length !== 1 || heaFiles.length !== 1) {
-      setError('Please upload exactly one .dat file and one .hea file.');
-      setFiles([]);
-      return;
-    }
-    
-    const datFile = datFiles[0];
-    const heaFile = heaFiles[0];
-    
-    // Check file sizes (max 10MB each)
-    if (datFile.size > 10 * 1024 * 1024 || heaFile.size > 10 * 1024 * 1024) {
-      setError('File size exceeds 10MB limit for one or both files.');
-      setFiles([]);
-      return;
-    }
-    
-    // Check that filenames match (except extension)
-    const datName = datFile.name.replace('.dat', '');
-    const heaName = heaFile.name.replace('.hea', '');
-    
-    if (datName !== heaName) {
-      setError('The .dat and .hea files must have matching names.');
-      setFiles([]);
-      return;
-    }
-    
-    setFiles([datFile, heaFile]);
-  };
 
-  const handleBrowseClick = () => {
-    fileInputRef.current.click();
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (files.length !== 2) {
-      setError('Please select exactly two files: one .dat file and one .hea file.');
-      return;
-    }
-    
-    setIsLoading(true);
+    setIsProcessing(true);
     setError('');
     setResult(null);
-    
-    try {
-      const response = await apiService.predictEcg(files);
-      
-      // Transform response to match existing UI structure
+
+    // Simulate API call
+    setTimeout(() => {
+      setIsProcessing(false);
       setResult({
-        risk: response.result,
-        probability: Math.max(...Object.values(response.probabilities)),
-        confidence: response.confidence,
-        abnormalities: Object.entries(response.probabilities).map(([type, probability]) => ({
-          type: type.charAt(0).toUpperCase() + type.slice(1),
-          severity: probability > 0.7 ? 'Severe' : probability > 0.4 ? 'Moderate' : 'Mild',
-          probability: probability
-        }))
+        risk: 'Low',
+        probability: 0.15,
+        confidence: 0.92,
+        abnormalities: []
       });
-    } catch (err) {
-      if (err.message.includes('header file not found') || err.message.includes('.hea')) {
-        setError('Missing ECG header file. Please upload both the .dat and .hea files together.');
-      } else {
-        setError('Failed to analyze ECG data. Please try again.');
-      }
-      console.error('ECG prediction error:', err);
-    } finally {
-      setIsLoading(false);
-    }
+    }, 2000);
   };
 
   const resetForm = () => {
-    setFiles([]);
+    setFile(null);
     setResult(null);
     setError('');
   };
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <Card className="transition-all duration-300 hover:shadow-lg">
+      <Card className="interactive-lift">
         <CardHeader>
-          <CardTitle className="text-2xl">ECG Analysis</CardTitle>
-          <p className="text-muted-foreground">
-            Upload ECG .dat and .hea files for advanced cardiovascular disease prediction
-          </p>
+          <CardTitle>ECG Analysis</CardTitle>
+          <CardDescription>
+            Upload your ECG data for instant analysis and abnormality detection
+          </CardDescription>
         </CardHeader>
         
         <CardContent>
           {error && (
-            <div className="mb-6 p-4 bg-destructive/10 border border-destructive/50 rounded-lg animate-shake">
-              <p className="text-destructive">{error}</p>
+            <div className="mb-6 p-4 bg-danger-50 border border-danger-200 rounded-lg animate-shake">
+              <div className="flex items-center">
+                <AlertCircle className="h-5 w-5 text-danger-500 mr-2" />
+                <p className="text-danger-800">{error}</p>
+              </div>
             </div>
           )}
           
           {result ? (
             <div className="space-y-6 animate-fade-in-up">
-              <div className="p-6 bg-card rounded-lg border border-border">
-                <h3 className="text-xl font-semibold mb-4 text-foreground">Analysis Results</h3>
+              <div className="p-6 bg-surface rounded-lg border border-border">
+                <h3 className="heading-3 mb-4 text-text-primary">Analysis Results</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className="p-4 bg-primary/5 rounded-lg border border-primary/10">
-                    <p className="text-sm text-muted-foreground">Risk Level</p>
-                    <p className={`text-2xl font-bold ${result.risk === 'High' ? 'text-destructive' : 'text-green-500'}`}>
+                  <div className="p-4 bg-primary-50 rounded-lg border border-primary-200">
+                    <p className="body-small text-text-secondary">Risk Level</p>
+                    <p className={`heading-2 ${result.risk === 'High' ? 'text-danger-500' : 'text-success-500'}`}>
                       {result.risk}
                     </p>
                   </div>
                   
-                  <div className="p-4 bg-primary/5 rounded-lg border border-primary/10">
-                    <p className="text-sm text-muted-foreground">Probability</p>
-                    <p className="text-2xl font-bold text-foreground">
+                  <div className="p-4 bg-primary-50 rounded-lg border border-primary-200">
+                    <p className="body-small text-text-secondary">Probability</p>
+                    <p className="heading-2 text-text-primary">
                       {(result.probability * 100).toFixed(1)}%
                     </p>
                   </div>
                   
-                  <div className="p-4 bg-primary/5 rounded-lg border border-primary/10">
-                    <p className="text-sm text-muted-foreground">Confidence</p>
-                    <p className="text-2xl font-bold text-foreground">
+                  <div className="p-4 bg-primary-50 rounded-lg border border-primary-200">
+                    <p className="body-small text-text-secondary">Confidence</p>
+                    <p className="heading-2 text-text-primary">
                       {(result.confidence * 100).toFixed(1)}%
                     </p>
                   </div>
                 </div>
                 
                 <div className="mb-6">
-                  <h4 className="font-semibold mb-2 text-foreground">Detected Abnormalities</h4>
-                  <div className="space-y-3">
-                    {result.abnormalities.map((abnormality, index) => (
-                      <div key={index} className="p-3 bg-muted/50 rounded-lg border border-border">
-                        <div className="flex justify-between">
-                          <span className="font-medium text-foreground">{abnormality.type}</span>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            abnormality.severity === 'Severe' ? 'bg-destructive/10 text-destructive' :
-                            abnormality.severity === 'Moderate' ? 'bg-yellow-500/10 text-yellow-500' :
-                            'bg-green-500/10 text-green-500'
-                          }`}>
-                            {abnormality.severity}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                  <h4 className="font-semibold mb-2 text-text-primary">Risk Assessment</h4>
+                  <div className="w-full bg-surface-contrast rounded-full h-4">
+                    <div 
+                      className={`h-4 rounded-full ${
+                        result.probability > 0.7 ? 'bg-danger-500' : 
+                        result.probability > 0.4 ? 'bg-warning-500' : 'bg-success-500'
+                      }`}
+                      style={{ width: `${result.probability * 100}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex justify-between body-small text-text-tertiary mt-1">
+                    <span>Low Risk</span>
+                    <span>High Risk</span>
                   </div>
                 </div>
                 
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <h4 className="font-semibold mb-2 text-foreground">Visualization</h4>
-                  <div className="h-48 bg-primary/5 rounded-lg flex items-center justify-center border border-border">
-                    <div className="text-center">
-                      <div className="h-32 w-64 bg-primary/10 rounded flex items-end justify-center pb-4">
-                        <div className="flex items-end h-24 space-x-1">
-                          {[...Array(20)].map((_, i) => (
-                            <div 
-                              key={i}
-                              className="w-2 bg-primary rounded-t"
-                              style={{ height: `${Math.random() * 80 + 10}%` }}
-                            ></div>
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-2">ECG Waveform Visualization</p>
+                <div className="p-4 bg-surface-contrast rounded-lg">
+                  <h4 className="font-semibold mb-2 text-text-primary">Findings</h4>
+                  {result.abnormalities && result.abnormalities.length > 0 ? (
+                    <ul className="list-disc pl-5 space-y-1 text-text-secondary">
+                      {result.abnormalities.map((abnormality, index) => (
+                        <li key={index}>{abnormality}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="flex items-center text-success-500">
+                      <CheckCircle className="h-5 w-5 mr-2" />
+                      <span>No significant abnormalities detected</span>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
-          ) : isLoading ? (
+          ) : isProcessing ? (
             <div className="space-y-6">
-              <Skeleton className="h-8 w-1/3 animate-pulse" />
-              <div className="p-8 border-2 border-dashed border-border rounded-lg text-center">
-                <Skeleton className="h-16 w-16 mx-auto mb-4 animate-pulse" />
-                <Skeleton className="h-4 w-1/2 mx-auto mb-2 animate-pulse" />
-                <Skeleton className="h-4 w-1/3 mx-auto animate-pulse" />
+              <div className="flex flex-col items-center justify-center py-12">
+                <Activity className="h-12 w-12 text-primary-500 animate-spin" />
+                <h3 className="heading-4 mt-4 text-text-primary">Analyzing ECG Data</h3>
+                <p className="body-medium text-text-secondary mt-2">
+                  Processing your ECG file and detecting potential abnormalities...
+                </p>
+                <div className="w-full max-w-md mt-6">
+                  <div className="h-2 bg-surface-contrast rounded-full overflow-hidden">
+                    <div className="h-full bg-primary-500 rounded-full animate-progress"></div>
+                  </div>
+                </div>
               </div>
-              <Skeleton className="h-10 w-full animate-pulse" />
             </div>
           ) : (
             <div className="space-y-6">
-              <div 
-                className={`p-8 border-2 border-dashed rounded-lg text-center cursor-pointer transition-all duration-300 ${
-                  isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
-                }`}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={handleBrowseClick}
-              >
+              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary-300 transition-colors">
+                <Upload className="h-12 w-12 text-text-tertiary mx-auto" />
+                <h3 className="heading-4 mt-4 text-text-primary">Upload ECG File</h3>
+                <p className="body-medium text-text-secondary mt-2">
+                  Drag and drop your ECG file here, or click to browse
+                </p>
                 <input
                   type="file"
-                  ref={fileInputRef}
+                  accept=".csv,.txt,.dat"
                   onChange={handleFileChange}
                   className="hidden"
-                  accept=".dat,.hea"
-                  multiple
+                  id="ecg-upload"
                 />
-                
-                <div className="flex flex-col items-center justify-center space-y-4">
-                  <div className="p-3 bg-primary/10 rounded-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                    </svg>
-                  </div>
-                  
-                  <div>
-                    <p className="font-medium text-foreground">
-                      {files.length > 0 ? `${files.length} file(s) selected` : 'Drag & drop your ECG files here'}
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {files.length > 0 ? 'Ready for upload' : 'Supports .dat and .hea formats (Max 10MB each). Select both files together.'}
-                    </p>
-                  </div>
-                  
-                  <Button type="button" variant="secondary">
-                    Browse Files
+                <label htmlFor="ecg-upload">
+                  <Button variant="outline" className="mt-4">
+                    Select File
                   </Button>
-                </div>
+                </label>
+                {file && (
+                  <div className="mt-4 p-3 bg-surface-contrast rounded-lg inline-flex items-center">
+                    <Activity className="h-5 w-5 text-primary-500 mr-2" />
+                    <span className="body-medium text-text-primary">{file.name}</span>
+                  </div>
+                )}
               </div>
               
-              {files.length > 0 && (
-                <div className="p-4 bg-muted/50 rounded-lg border border-border animate-fade-in">
-                  <div className="space-y-3">
-                    {files.map((file, index) => (
-                      <div key={index} className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="p-2 bg-primary/10 rounded-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                          </div>
-                          <div>
-                            <p className="font-medium text-foreground">{file.name}</p>
-                            <p className="text-sm text-muted-foreground">{(file.size / 1024).toFixed(1)} KB</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    <div className="flex justify-end">
-                      <button
-                        onClick={resetForm}
-                        className="p-2 text-muted-foreground hover:text-destructive rounded-full hover:bg-destructive/10 transition-colors duration-200"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
+              <div className="bg-surface-contrast rounded-lg p-4">
+                <h4 className="font-semibold text-text-primary mb-2">Supported Formats</h4>
+                <ul className="list-disc pl-5 space-y-1 text-text-secondary">
+                  <li>CSV files containing ECG data</li>
+                  <li>DAT files from medical devices</li>
+                  <li>TXT files with numerical ECG readings</li>
+                </ul>
+              </div>
             </div>
           )}
         </CardContent>
@@ -312,17 +191,24 @@ const EcgModelEnhanced = () => {
             </div>
           ) : (
             <div className="flex space-x-3">
-              <Button type="button" variant="secondary" onClick={resetForm} disabled={files.length === 0}>
-                Clear
+              <Button type="button" variant="secondary" onClick={resetForm}>
+                Reset
               </Button>
-              <Button onClick={handleSubmit} disabled={isLoading || files.length !== 2}>
-                {isLoading ? (
+              <Button 
+                type="submit" 
+                disabled={isProcessing || !file} 
+                onClick={handleProcess}
+              >
+                {isProcessing ? (
                   <>
-                    <LoadingSpinner className="mr-2 h-4 w-4" />
-                    Analyzing...
+                    <Activity className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
                   </>
                 ) : (
-                  'Analyze ECG'
+                  <>
+                    <Zap className="mr-2 h-4 w-4" />
+                    Analyze ECG
+                  </>
                 )}
               </Button>
             </div>

@@ -1,36 +1,40 @@
 import React from 'react';
+import { Button } from './button';
 
-// Simple class name concatenation function
-const cn = (...classes) => classes.filter(Boolean).join(' ');
-
-const statusVariants = {
-  high: 'bg-tactile-accent text-tactile-text-dark border-tactile-accent dark:bg-tactile-accent/80 dark:text-tactile-text-dark',
-  medium: 'bg-zen-green/80 text-tactile-text-dark border-zen-green dark:bg-zen-green/70 dark:text-tactile-text-dark',
-  low: 'bg-zen-light-blue/80 text-tactile-text-dark border-zen-light-blue dark:bg-zen-light-blue/70 dark:text-tactile-text-dark',
-};
-
-const StatusButton = React.forwardRef(({ 
-  className, 
-  variant = 'medium', 
-  size = 'default', 
-  children,
-  ...props 
+const StatusButton = React.forwardRef(({
+  className,
+  variant = 'primary',
+  size = 'md',
+  status,
+  ...props
 }, ref) => {
+  // Determine status color
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'success':
+        return 'bg-success-500 hover:bg-success-600 text-white';
+      case 'warning':
+        return 'bg-warning-500 hover:bg-warning-600 text-white';
+      case 'danger':
+        return 'bg-danger-500 hover:bg-danger-600 text-white';
+      case 'info':
+        return 'bg-primary-500 hover:bg-primary-600 text-white';
+      default:
+        return '';
+    }
+  };
+  
   return (
-    <button
+    <Button
       ref={ref}
-      className={cn(
-        'flex min-w-[84px] max-w-[480px] cursor-default items-center justify-center overflow-hidden rounded-lg h-10 px-5 status-btn-tactile text-base font-medium leading-normal w-full',
-        statusVariants[variant],
-        className
-      )}
+      className={`${getStatusColor(status)} ${className || ''}`}
+      variant={variant}
+      size={size}
       {...props}
-    >
-      <span className="truncate">{children}</span>
-    </button>
+    />
   );
 });
 
 StatusButton.displayName = 'StatusButton';
 
-export { StatusButton, statusVariants };
+export { StatusButton };

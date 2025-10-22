@@ -9,6 +9,7 @@ import TabularModelEnhanced from './components/predictions/TabularModelEnhanced'
 import EcgModelEnhanced from './components/predictions/EcgModelEnhanced';
 import PredictionHistory from './components/dashboard/PredictionHistory';
 import apiService from './api';
+import { Button } from './components/ui/button';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -117,66 +118,66 @@ function App() {
           />
           <main className="container py-8">
             <div className="mx-auto max-w-md">
-              <div className="rounded-lg border bg-card p-6 shadow-sm">
-                <h2 className="text-2xl font-bold mb-6 text-center">{isRegistering ? 'Register' : 'Login'}</h2>
+              <div className="rounded-lg border border-border bg-surface p-6 shadow-sm">
+                <h2 className="heading-2 mb-6 text-center">{isRegistering ? 'Register' : 'Login'}</h2>
                 
                 {error && (
-                  <div className="bg-destructive/10 border border-destructive/50 rounded-md p-3 mb-4">
-                    <p className="text-destructive text-sm">{error}</p>
+                  <div className="bg-danger-50 border border-danger-200 rounded-md p-3 mb-4">
+                    <p className="text-danger-800 body-small">{error}</p>
                   </div>
                 )}
                 
                 {isRegistering ? (
                   <form onSubmit={handleRegister} className="space-y-4">
                     <div className="space-y-2">
-                      <label htmlFor="username" className="text-sm font-medium">Username</label>
+                      <label htmlFor="username" className="body-small font-medium">Username</label>
                       <input
                         id="username"
                         type="text"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         required
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="input"
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <label htmlFor="email" className="text-sm font-medium">Email</label>
+                      <label htmlFor="email" className="body-small font-medium">Email</label>
                       <input
                         id="email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="input"
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <label htmlFor="password" className="text-sm font-medium">Password</label>
+                      <label htmlFor="password" className="body-small font-medium">Password</label>
                       <input
                         id="password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="input"
                       />
                     </div>
                     
-                    <button
+                    <Button
                       type="submit"
-                      className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+                      className="w-full"
                     >
                       Register
-                    </button>
+                    </Button>
                     
-                    <p className="text-center text-sm">
+                    <p className="text-center body-small">
                       Already have an account?{' '}
                       <button
                         type="button"
                         onClick={() => setIsRegistering(false)}
-                        className="text-primary underline-offset-4 hover:underline"
+                        className="text-primary-500 underline-offset-4 hover:underline"
                       >
                         Login
                       </button>
@@ -185,42 +186,42 @@ function App() {
                 ) : (
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
-                      <label htmlFor="login-username" className="text-sm font-medium">Username</label>
+                      <label htmlFor="login-username" className="body-small font-medium">Username</label>
                       <input
                         id="login-username"
                         type="text"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         required
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="input"
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <label htmlFor="login-password" className="text-sm font-medium">Password</label>
+                      <label htmlFor="login-password" className="body-small font-medium">Password</label>
                       <input
                         id="login-password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="input"
                       />
                     </div>
                     
-                    <button
+                    <Button
                       type="submit"
-                      className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+                      className="w-full"
                     >
                       Login
-                    </button>
+                    </Button>
                     
-                    <p className="text-center text-sm">
+                    <p className="text-center body-small">
                       Don't have an account?{' '}
                       <button
                         type="button"
                         onClick={() => setIsRegistering(true)}
-                        className="text-primary underline-offset-4 hover:underline"
+                        className="text-primary-500 underline-offset-4 hover:underline"
                       >
                         Register
                       </button>
@@ -231,7 +232,7 @@ function App() {
                 <div className="mt-6 text-center">
                   <button
                     onClick={() => setShowLogin(false)}
-                    className="text-sm text-primary hover:underline"
+                    className="body-small text-primary-500 hover:underline"
                   >
                     ← Back to Home
                   </button>
@@ -247,47 +248,35 @@ function App() {
   return (
     <ToastProvider>
       <DashboardLayout onLogout={handleLogout}>
-        <div className="mb-4 flex gap-2">
-          <button
+        <div className="mb-4 flex gap-2 flex-wrap">
+          <Button
             onClick={() => setActiveView('dashboard')}
-            className={`px-4 py-2 rounded-md text-sm font-medium ${
-              activeView === 'dashboard'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted hover:bg-muted/80'
-            }`}
+            variant={activeView === 'dashboard' ? 'primary' : 'outline'}
+            size="sm"
           >
             Dashboard
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setActiveView('tabular')}
-            className={`px-4 py-2 rounded-md text-sm font-medium ${
-              activeView === 'tabular'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted hover:bg-muted/80'
-            }`}
+            variant={activeView === 'tabular' ? 'primary' : 'outline'}
+            size="sm"
           >
             Tabular Prediction
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setActiveView('ecg')}
-            className={`px-4 py-2 rounded-md text-sm font-medium ${
-              activeView === 'ecg'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted hover:bg-muted/80'
-            }`}
+            variant={activeView === 'ecg' ? 'primary' : 'outline'}
+            size="sm"
           >
             ECG Analysis
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setActiveView('history')}
-            className={`px-4 py-2 rounded-md text-sm font-medium ${
-              activeView === 'history'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted hover:bg-muted/80'
-            }`}
+            variant={activeView === 'history' ? 'primary' : 'outline'}
+            size="sm"
           >
             Prediction History
-          </button>
+          </Button>
         </div>
         
         {renderAuthenticatedView()}
