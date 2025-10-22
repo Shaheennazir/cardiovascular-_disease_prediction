@@ -77,7 +77,13 @@ class ECGPredictionService:
                 logger.warning("Could not rewrite ECG header prefix", error=str(e))
             # --- END FIX HEADER NAME MISMATCH ---
                 
-            record = wfdb.rdrecord(base_path)
+            # Force WFDB to use the updated header file explicitly
+            record = wfdb.rdrecord(
+                record_name=os.path.basename(base_path),
+                pb_dir=os.path.dirname(base_path)
+            )
+            
+            logger.info(f"✅ Successfully loaded record: {record.__dict__.keys()}")
             
             # Extract signal data
             signal = record.p_signal
