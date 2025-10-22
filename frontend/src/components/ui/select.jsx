@@ -28,16 +28,23 @@ const Select = ({ children, value, onValueChange, required, name, ...props }) =>
   return (
     <div ref={selectRef} className="relative">
       {/* Hidden input for form submission */}
-      <input 
-        type="hidden" 
-        name={name} 
-        value={value || ''} 
+      <input
+        type="hidden"
+        name={name}
+        value={value || ''}
         required={required}
       />
       
       <div
         className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         onClick={() => setIsOpen(!isOpen)}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsOpen(!isOpen);
+          }
+        }}
       >
         <span className={selectedLabel ? 'text-foreground' : 'text-muted-foreground'}>
           {selectedLabel || props.placeholder || 'Select an option'}
@@ -77,7 +84,8 @@ const Select = ({ children, value, onValueChange, required, name, ...props }) =>
 };
 
 const SelectItem = ({ value, children, onSelect, isSelected, className, ...props }) => {
-  const handleClick = () => {
+  const handleClick = (e) => {
+    e.stopPropagation();
     onSelect && onSelect(value);
   };
   

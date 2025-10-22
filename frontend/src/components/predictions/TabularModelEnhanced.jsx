@@ -76,16 +76,14 @@ const TabularModelEnhanced = () => {
     setFormData({
       age: '',
       sex: '',
-      cp: '',
+      height: '',
+      weight: '',
       trestbps: '',
       chol: '',
+      cp: '',
       fbs: '',
-      restecg: '',
-      thalach: '',
       exang: '',
-      oldpeak: '',
       slope: '',
-      ca: '',
       thal: ''
     });
     setResult(null);
