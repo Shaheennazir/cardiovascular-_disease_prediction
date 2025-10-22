@@ -48,7 +48,8 @@ class ECGPredictionService:
             # Read the ECG record using wfdb
             # Extract the base name without extension and path
             base_name = os.path.splitext(os.path.basename(file_path))[0]
-            record = wfdb.rdrecord(os.path.join(os.path.dirname(file_path), base_name))
+            # Use the full file path directly with wfdb
+            record = wfdb.rdrecord(file_path.replace('.dat', ''))
             
             # Extract signal data
             signal = record.p_signal
